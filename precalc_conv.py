@@ -17,6 +17,7 @@ from keras.layers.pooling import GlobalAveragePooling2D
 from keras.optimizers import SGD, RMSprop, Adam
 from keras.preprocessing import image
 
+from kaggle import submit, push_to_kaggle
 
 class PrecalcConvModel():
     """
@@ -249,6 +250,17 @@ def train_model():
     dm = DenseModel('data/')
     dm.train(conv_feat, conv_val_feat)
 
+def train_da_model()
+    print("===== loading data-augemented conv features =====")
+    pcm = PrecalcDAConvModel('data/')
+    (conv_feat, conv_val_feat) = pcm.get_conv_feats()
+
+    print("===== train dense model =====")
+    dm = DenseModel('data/')
+    dm.model_path = path + 'models/conv_da_weights.h5'
+    dm.preds_path = path + 'results/preds_da.h5'
+    dm.train(conv_feat, conv_val_feat)
+
 def run_test():
     print("====== load test conv feats ======")
     tm = PrecalcConvTestModel('data/')
@@ -258,10 +270,20 @@ def run_test():
     print("====== load dense model ======")
     dm = DenseModel('data/')
     dm.load_model()
+    dm.model_path = path + 'models/conv_da_weights.h5'
+    dm.preds_path = path + 'results/preds_da.h5'
     print("====== run test ======")
     preds = dm.test(conv_test_feat)
 
+def run_submit():
+    print("======= making submission ========")
+    preds = load_array('data/results/preds_da.h5/')
+    test_batch = get_batches('data/test/')
+    submit(preds, test_batch, 'da_subm.gz')
+
+    print("======= pushing to kaggle ========")
+    push_to_kaggle('da_subm.gz')
+
 if __name__ == "__main__":
-    # precalc_all()
-    # train_model()
+    train_da_model()
     run_test()

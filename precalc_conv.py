@@ -138,7 +138,7 @@ class PrecalcConvTestModel(PrecalcConvModel):
         print("(test) saving feats to file....")
         conv_test_feat_path = self.path+'results/conv_test_feat.dat'
         print("(test) conv feats: %s" % (conv_test_feat,))
-        print("(test) path: %s" % self.conv_test_feat_path)
+        print("(test) path: %s" % conv_test_feat_path)
 
         save_array(conv_test_feat_path, conv_test_feat)
         return conv_test_feat
@@ -259,4 +259,4 @@ def run_test():
 if __name__ == "__main__":
     # precalc_all()
     # train_model()
-    # run_test()
+    run_test()

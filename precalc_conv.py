@@ -148,6 +148,7 @@ class DenseModel():
         self.path = path
         self.model = self.dense_model(dense_layers)
         self.model_path = path + 'models/conv_weights.h5'
+        self.preds_path = path + 'results/preds.h5'
 
     def dense_layers(self, p=0.8, input_shape=(512, 14, 14)):
         return [
@@ -194,6 +195,7 @@ class DenseModel():
     def test(self, conv_test_feat):
         batch_size = 32
         preds = self.model.predict(conv_test_feat, batch_size=batch_size)
+        save_array(self.preds_path, preds)
         return preds
 
 
@@ -222,6 +224,15 @@ def precalc_all():
     dm = DenseModel('data/')
     dm.train(conv_feat, conv_val_feat)
 
+def train_model():
+    print("===== loading conv features =====")
+    pcm = PrecalcConvModel('data/')
+    (conv_feat, conv_val_feat) = pcm.get_conv_feats()
+
+    print("===== train dense model =====")
+    dm = DenseModel('data/')
+    dm.train(conv_feat, conv_val_feat)
+
 def run_test():
     print("====== load test conv feats ======")
     tm = PrecalcConvTestModel('data/')
@@ -234,7 +245,7 @@ def run_test():
     print("====== run test ======")
     preds = dm.test(conv_test_feat)
 
-
 if __name__ == "__main__":
     precalc_all()
+    # train_model()
     # run_test()

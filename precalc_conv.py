@@ -250,15 +250,15 @@ def train_model():
     dm = DenseModel('data/')
     dm.train(conv_feat, conv_val_feat)
 
-def train_da_model()
+def train_da_model():
     print("===== loading data-augemented conv features =====")
     pcm = PrecalcDAConvModel('data/')
     (conv_feat, conv_val_feat) = pcm.get_conv_feats()
 
     print("===== train dense model =====")
     dm = DenseModel('data/')
-    dm.model_path = path + 'models/conv_da_weights.h5'
-    dm.preds_path = path + 'results/preds_da.h5'
+    dm.model_path = 'data/models/conv_da_weights.h5'
+    dm.preds_path = 'data/results/preds_da.h5'
     dm.train(conv_feat, conv_val_feat)
 
 def run_test():
@@ -270,8 +270,8 @@ def run_test():
     print("====== load dense model ======")
     dm = DenseModel('data/')
     dm.load_model()
-    dm.model_path = path + 'models/conv_da_weights.h5'
-    dm.preds_path = path + 'results/preds_da.h5'
+    dm.model_path = 'data/models/conv_da_weights.h5'
+    dm.preds_path = 'data/results/preds_da.h5'
     print("====== run test ======")
     preds = dm.test(conv_test_feat)
 

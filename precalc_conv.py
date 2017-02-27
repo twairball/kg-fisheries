@@ -128,13 +128,13 @@ class PrecalcConvTestModel(PrecalcConvModel):
         conv_test_feat = self.model.predict_generator(test_batches, test_batches.nb_sample)
 
         print("(test) saving feats to file....")
-        conv_test_feat_path = path+'results/conv_test_feat.dat'
+        conv_test_feat_path = self.path+'results/conv_test_feat.dat'
         save_array(conv_test_feat_path, conv_test_feat)
         return conv_test_feat
 
     def load_conv_feats(self):
         print("(test) loading convolution features from file...")
-        conv_test_feat_path = path+'results/conv_test_feat.dat'
+        conv_test_feat_path = self.path+'results/conv_test_feat.dat'
         conv_test_feat = load_array(conv_test_feat_path)
         return conv_test_feat
 
@@ -186,9 +186,19 @@ class DenseModel():
         self.model.fit(conv_feat, trn_labels, batch_size=batch_size, nb_epoch=nb_epoch,
             validation_data=(conv_val_feat, val_labels))
         self.model.save_weights(self.model_path)
-        
-        
-if __name__ == "__main__":
+    
+    def load_model(self):
+        self.model.load_weights(self.model_path)
+    
+    def test(self, conv_test_feat):
+        batch_size = 32
+        preds = self.model.predict(conv_test_feat, batch_size=batch_size)
+        return preds
+
+
+
+# main scripts
+def precalc_all():
     print("===== conv features =====")
     pcm = PrecalcConvModel('data/')
     (conv_feat, conv_val_feat) = pcm.calc_conv_feats()
@@ -210,5 +220,23 @@ if __name__ == "__main__":
     print("===== train dense model =====")
     dm = DenseModel('data/')
     dm.train(conv_feat, conv_val_feat)
+
+def run_test():
+    print("====== load test conv feats ======")
+    tm = PrecalcConvTestModel('data/')
+    conv_test_feat = tm.get_conv_feats()
+
+    # run test
+    print("====== load dense model ======")
+    dm = DenseModel('data/')
+    dm.load_model()
+    print("====== run test ======")
+    preds = dm.test(conv_test_feat)
+
+
+if __name__ == "__main__":
+    precalc_all()
+    # run_test()
+
 
     

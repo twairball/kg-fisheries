@@ -124,7 +124,7 @@ class PrecalcConvTestModel(PrecalcConvModel):
     """
 
     def get_conv_feats(self):
-        conv_test_feat_path = path+'results/conv_test_feat.dat'
+        conv_test_feat_path = self.path+'results/conv_test_feat.dat'
         if os.path.isdir(conv_test_feat_path):
             return self.load_conv_feats()
         else:
@@ -258,5 +258,5 @@ def run_test():
 
 if __name__ == "__main__":
     # precalc_all()
-    train_model()
+    # train_model()
     # run_test()

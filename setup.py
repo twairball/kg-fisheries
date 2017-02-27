@@ -43,6 +43,7 @@ def train_data_stats():
 
 def classnames():
     return ['ALB', 'BET', 'DOL', 'LAG', 'NoF', 'OTHER', 'SHARK', 'YFT']
+
 def df_draw_random(from_dir, sample_size):
     # draw random sample from dir
     files = glob(from_dir+'/*')

@@ -5,23 +5,27 @@ import numpy as np
 import os, json, sys
 import os.path
 from glob import glob
+from utils import *
+
 
 """
     Util methods for submitting to kaggle
 """
+def classnames():
+    return ['ALB', 'BET', 'DOL', 'LAG', 'NoF', 'OTHER', 'SHARK', 'YFT']
+
 def submit(preds, test_batches, filepath):
     def do_clip(arr, mx): 
         return np.clip(arr, (1-mx)/9, mx)
 
     def img_names(filenames):
-        df = pd.DataFrame(filenames, columns=['img'])
-        df.loc[:, 'img'] = df['img'].str.replace('unknown/', '')
-        df.loc[:, 'img'] = df['img'].str.replace('own/', '')
+        df = pd.DataFrame(filenames, columns=['image'])
+        df.loc[:, 'image'] = df['image'].str.replace('unknown/', '')
         return df
 
     def preprocess(subm):
         # make classes
-        classes = ['c0', 'c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7', 'c8', 'c9']
+        classes = classnames()
         submission = pd.DataFrame(subm, columns=classes)
         return submission
     
@@ -42,4 +46,9 @@ def push_to_kaggle(filepath):
 
 if __name__ == "__main__":
     print("======= making submission ========")
+    preds = load_array('data/results/preds.h5/')
+    test_batch = get_batches('data/test/')
+    submit(preds, test_batch, 'subm.gz')
+
     print("======= pushing to kaggle ========")
+    push_to_kaggle('subm.gz')

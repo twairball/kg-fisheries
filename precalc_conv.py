@@ -68,7 +68,7 @@ class PrecalcConvModel():
         conv_feat = self.model.predict_generator(train_batches, train_batches.nb_sample)
 
         print("(train) saving feats to file....")
-        print("(train) conv feats: %s" % (conv_feat,))
+        print("(train) conv feats: %s" % (conv_feat.shape,))
         print("(train) path: %s" % self.conv_feat_path)
         
         save_array(self.conv_feat_path, conv_feat)
@@ -78,7 +78,7 @@ class PrecalcConvModel():
         conv_val_feat = self.model.predict_generator(val_batches, val_batches.nb_sample)
 
         print("(valid) saving feats to file....")
-        print("(valid) conv feats: %s" % (conv_val_feat,))
+        print("(valid) conv feats: %s" % (conv_val_feat.shape,))
         print("(valid) path: %s" % self.conv_val_feat_path)
 
         save_array(self.conv_val_feat_path, conv_val_feat)
@@ -137,7 +137,7 @@ class PrecalcConvTestModel(PrecalcConvModel):
 
         print("(test) saving feats to file....")
         conv_test_feat_path = self.path+'results/conv_test_feat.dat'
-        print("(test) conv feats: %s" % (conv_test_feat,))
+        print("(test) conv feats: %s" % (conv_test_feat.shape,))
         print("(test) path: %s" % conv_test_feat_path)
 
         save_array(conv_test_feat_path, conv_test_feat)
@@ -206,6 +206,11 @@ class DenseModel():
     def test(self, conv_test_feat):
         batch_size = 32
         preds = self.model.predict(conv_test_feat, batch_size=batch_size)
+
+        print("(test) saving predictions to file....")
+        print("(test) preds: %s" % (preds.shape,))
+        print("(test) path: %s" % self.preds_path)
+
         save_array(self.preds_path, preds)
         return preds
 

@@ -145,6 +145,7 @@ class DenseModel():
     """
     def __init__(self, path, p=0.8, input_shape=(512, 14, 14)):
         dense_layers = self.dense_layers(p, input_shape)
+        self.path = path
         self.model = self.dense_model(dense_layers)
         self.model_path = path + 'models/conv_weights.h5'
 
@@ -237,6 +238,3 @@ def run_test():
 if __name__ == "__main__":
     precalc_all()
     # run_test()
-
-
-    

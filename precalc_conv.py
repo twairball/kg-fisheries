@@ -66,13 +66,21 @@ class PrecalcConvModel():
         print("(train) calculating convolution features")
         train_batches = self.create_train_batches()
         conv_feat = self.model.predict_generator(train_batches, train_batches.nb_sample)
+
         print("(train) saving feats to file....")
+        print("(train) conv feats: %s" % (conv_feat,))
+        print("(train) path: %s" % self.conv_feat_path)
+        
         save_array(self.conv_feat_path, conv_feat)
         
         print("(valid) calculating convolution features")
         val_batches = self.create_val_batches()
         conv_val_feat = self.model.predict_generator(val_batches, val_batches.nb_sample)
+
         print("(valid) saving feats to file....")
+        print("(valid) conv feats: %s" % (conv_val_feat,))
+        print("(valid) path: %s" % self.conv_val_feat_path)
+
         save_array(self.conv_val_feat_path, conv_val_feat)
 
         return (conv_feat, conv_val_feat)
@@ -129,6 +137,9 @@ class PrecalcConvTestModel(PrecalcConvModel):
 
         print("(test) saving feats to file....")
         conv_test_feat_path = self.path+'results/conv_test_feat.dat'
+        print("(test) conv feats: %s" % (conv_test_feat,))
+        print("(test) path: %s" % self.conv_test_feat_path)
+
         save_array(conv_test_feat_path, conv_test_feat)
         return conv_test_feat
 
@@ -172,10 +183,10 @@ class DenseModel():
         model.compile(optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
         return model
     
-    def get_labels(self, dir):
+    def get_labels(self, dir_path):
         # get labels for dir
         gen = image.ImageDataGenerator()
-        batch = gen.flow_from_directory('data/train', target_size=(224, 224), batch_size=1, class_mode='categorical', shuffle=False)
+        batch = gen.flow_from_directory(dir_path, target_size=(224, 224), batch_size=1, class_mode='categorical', shuffle=False)
         labels = to_categorical(batch.classes)
         return labels
         
@@ -246,6 +257,6 @@ def run_test():
     preds = dm.test(conv_test_feat)
 
 if __name__ == "__main__":
-    precalc_all()
-    # train_model()
+    # precalc_all()
+    train_model()
     # run_test()

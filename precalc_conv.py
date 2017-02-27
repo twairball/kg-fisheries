@@ -63,7 +63,7 @@ class PrecalcConvModel():
         else:
             return self.calc_conv_feats()
 
-    def calc_conv_feats(self):
+    def calc_train_conv_feats(self):
         print("(train) calculating convolution features")
         train_batches = self.create_train_batches()
         conv_feat = self.model.predict_generator(train_batches, train_batches.nb_sample)
@@ -73,7 +73,9 @@ class PrecalcConvModel():
         print("(train) path: %s" % self.conv_feat_path)
         
         save_array(self.conv_feat_path, conv_feat)
-        
+        return conv_feat
+
+    def calc_val_conv_feats(self):
         print("(valid) calculating convolution features")
         val_batches = self.create_val_batches()
         conv_val_feat = self.model.predict_generator(val_batches, val_batches.nb_sample)
@@ -83,7 +85,11 @@ class PrecalcConvModel():
         print("(valid) path: %s" % self.conv_val_feat_path)
 
         save_array(self.conv_val_feat_path, conv_val_feat)
+        return conv_val_feat
 
+    def calc_conv_feats(self):
+        conv_feat = self.calc_train_conv_feats()
+        conv_val_feat = self.calc_val_conv_feats()
         return (conv_feat, conv_val_feat)
     
     def load_conv_feats(self):
@@ -91,33 +97,6 @@ class PrecalcConvModel():
         conv_feat = load_array(self.conv_feat_path)
         conv_val_feat = load_array(self.conv_val_feat_path)
         return (conv_feat, conv_val_feat)
-
-
-class PrecalcDAConvModel(PrecalcConvModel):
-    """
-        Precalculate convolution features with data augmentation
-    """
-    def __init__(self, path):
-        self.path = path
-        self.model = self.conv_model()
-        self.conv_feat_path = path+'results/conv_da_feat.dat'
-        self.conv_val_feat_path = path+'results/conv_da_val_feat.dat'
-
-    def create_da_batches(self, path):
-        # image augmentation generator
-        gen_t = image.ImageDataGenerator(rotation_range=15, height_shift_range=0.05, 
-            shear_range=0.1, channel_shift_range=20, width_shift_range=0.1)
-        batch_size = 64
-        target_size = (224, 224)
-        return gen_t.flow_from_directory(path, 
-            target_size = target_size,
-            batch_size = batch_size,
-            class_mode = 'categorical',
-            shuffle = False
-        )
-    
-    def create_train_batches(self):
-        return self.create_da_batches(self.path + 'train')
 
 class PrecalcConvTestModel(PrecalcConvModel):
     """
@@ -190,12 +169,18 @@ class DenseModel():
         batch = gen.flow_from_directory(dir_path, target_size=(224, 224), batch_size=1, class_mode='categorical', shuffle=False)
         labels = to_categorical(batch.classes)
         return labels
-        
+    
+    def get_train_labels(self):
+        return self.get_labels(self.path + 'train')
+    
+    def get_val_labels(self):
+        return self.get_labels(self.path + 'valid')
+
     def train(self, conv_feat, conv_val_feat):
         batch_size = 32
         nb_epoch = 10
-        trn_labels = self.get_labels(self.path + 'train')
-        val_labels = self.get_labels(self.path + 'valid')
+        trn_labels = self.get_train_labels()
+        val_labels = self.get_val_labels()
 
         self.model.fit(conv_feat, trn_labels, batch_size=batch_size, nb_epoch=nb_epoch,
             validation_data=(conv_val_feat, val_labels))
@@ -215,8 +200,6 @@ class DenseModel():
         save_array(self.preds_path, preds)
         return preds
 
-
-
 # main scripts
 def precalc_all():
     print("===== conv features =====")
@@ -224,12 +207,6 @@ def precalc_all():
     (conv_feat, conv_val_feat) = pcm.calc_conv_feats()
 
     del pcm
-
-    print("===== data-augmented conv features ======")
-    pdm = PrecalcDAConvModel('data/')
-    pdm.calc_conv_feats()
-
-    del pdm
 
     print("===== test conv features =====")
     tm = PrecalcConvTestModel('data/')
@@ -250,17 +227,6 @@ def train_model():
     dm = DenseModel('data/')
     dm.train(conv_feat, conv_val_feat)
 
-def train_da_model():
-    print("===== loading data-augemented conv features =====")
-    pcm = PrecalcDAConvModel('data/')
-    (conv_feat, conv_val_feat) = pcm.get_conv_feats()
-
-    print("===== train dense model =====")
-    dm = DenseModel('data/')
-    dm.model_path = 'data/models/conv_da_weights.h5'
-    dm.preds_path = 'data/results/preds_da.h5'
-    dm.train(conv_feat, conv_val_feat)
-
 def run_test():
     print("====== load test conv feats ======")
     tm = PrecalcConvTestModel('data/')
@@ -270,19 +236,10 @@ def run_test():
     print("====== load dense model ======")
     dm = DenseModel('data/')
     dm.load_model()
-    dm.model_path = 'data/models/conv_da_weights.h5'
-    dm.preds_path = 'data/results/preds_da.h5'
+    dm.model_path = 'data/models/conv_weights.h5'
+    dm.preds_path = 'data/results/preds.h5'
     print("====== run test ======")
     preds = dm.test(conv_test_feat)
-
-def run_submit():
-    print("======= making submission ========")
-    preds = load_array('data/results/preds_da.h5/')
-    test_batch = get_batches('data/test/')
-    submit(preds, test_batch, 'da_subm.gz')
-
-    print("======= pushing to kaggle ========")
-    push_to_kaggle('da_subm.gz')
 
 if __name__ == "__main__":
     train_da_model()

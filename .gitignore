@@ -9,4 +9,5 @@ submits/
 models/
 *.ipynb
 *.zip
+*.tgz
 .kaggle-cli

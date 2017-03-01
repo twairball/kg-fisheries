@@ -20,51 +20,70 @@ from keras.preprocessing import image
 from kaggle import submit, push_to_kaggle
 from precalc_conv import *
 
-class PrecalcPseudoModel(PrecalcConvModel):
-    """
-        Precalculate convolution features + pseudo labelling
-    """
-    def __init__(self, path):
-        self.path = path
-        self.model = self.conv_model()
-        self.conv_feat_path = path+'results/conv_pseudo_feat.dat'
-        self.conv_val_feat_path = path+'results/conv_pseudo_val_feat.dat'
-
-    def create_pseudo_batches(self, path):
-        # predict validation features and combine with training
-        # val_pseudo = bn_model.predict(conv_val_feat, batch_size=batch_size)
-        # comb_pseudo = np.concatenate([da_trn_labels, val_pseudo])
-        # comb_feat = np.concatenate([da_conv_feat, conv_val_feat])
-
-        # fine tune with model
-        # bn_model.load_weights(path+'models/da_conv8_1.h5')
-        # bn_model.fit(comb_feat, comb_pseudo, batch_size=batch_size, nb_epoch=1, 
-            #  validation_data=(conv_val_feat, val_labels))
-        pass
-    
-    def calc_train_conv_feats(self):
-        print("(train) calculating convolution features")
-        train_batches = self.create_train_batches()
-        conv_feat = self.model.predict_generator(train_batches, train_batches.nb_sample)
-
-        print("(train) saving feats to file....")
-        print("(train) conv feats: %s" % (conv_feat.shape,))
-        print("(train) path: %s" % self.conv_feat_path)
-        
-        save_array(self.conv_feat_path, conv_feat)
-        return conv_feat
-
-class DensePseudoMode(DenseModel):
-    def __init__(self, path, p=0.8, input_shape=(512, 14, 14), data_augment_size=3):
+class DensePseudoModel(DenseModel):
+    def __init__(self, path, p=0.8, input_shape=(512, 14, 14)):
         dense_layers = self.dense_layers(p, input_shape)
         self.path = path
         self.model = self.dense_model(dense_layers)
-        self.model_path = path + 'models/conv_da_weights.h5'
-        self.preds_path = path + 'results/preds_da.h5'
-        self.data_augment_size = data_augment_size
+        self.model_path = path + 'models/conv_psuedo_weights.h5'
+        self.preds_path = path + 'results/preds_pseudo.h5'
 
     def get_train_labels(self):
         return self.get_labels(self.path + 'train') * self.data_augment_size
 
+    def pseudo_train(self, conv_feat, conv_val_feat):
+        batch_size = 32
+        nb_epoch = 5
+        trn_labels = self.get_train_labels()
+        val_labels = self.get_val_labels()
+
+        # predict validation features and combine with training
+        val_pseudo = self.model.predict(conv_val_feat, batch_size=batch_size)
+        comb_pseudo = np.concatenate([trn_labels, val_pseudo])
+        comb_feat = np.concatenate([conv_feat, conv_val_feat])
+        print("(pseudo) labels: %d" % comb_pseudo.shape[0])
+        print("(pseudo) combined features: %s" %(comb_feat.shape,))
+
+        # fine tune with model
+        self.model.fit(comb_feat, comb_pseudo, batch_size=batch_size, nb_epoch=nb_epoch,
+            validation_data=(conv_val_feat, val_labels))
+        self.model.save_weights(self.model_path)
+
+def train_model():
+    print("===== loading conv features =====")
+    pcm = PrecalcConvModel('data/')
+    (conv_feat, conv_val_feat) = pcm.get_conv_feats()
+
+    print("===== train dense model =====")
+    dm = DensePseudoModel('data/')
+    dm.train(conv_feat, conv_val_feat)
+
+    print("===== Fine-tuning with pseudo labels =====")
+    dm.pseudo_train(conv_feat, conv_val_feat)
+
+def run_test():
+    print("====== load test conv feats ======")
+    tm = PrecalcConvTestModel('data/')
+    conv_test_feat = tm.get_conv_feats()
+
+    # run test
+    print("====== load dense model ======")
+    dm = DensePseudoModel('data/')
+    dm.load_model()
+    print("====== run test ======")
+    preds = dm.test(conv_test_feat)
+
+
+def run_submit():
+    print("======= making submission ========")
+    preds = load_array('data/results/preds_pseudo.h5/')
+    test_batch = get_batches('data/test/')
+    submit(preds, test_batch, 'pseudo_subm.gz')
+
+    print("======= pushing to kaggle ========")
+    push_to_kaggle('pseudo_subm.gz')
+
 if __name__ == "__main__":
-    print("======= pseudo labeling =======")
+    train_model()
+    run_test()
+    run_submit()

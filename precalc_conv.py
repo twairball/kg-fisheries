@@ -236,11 +236,9 @@ def run_test():
     print("====== load dense model ======")
     dm = DenseModel('data/')
     dm.load_model()
-    dm.model_path = 'data/models/conv_weights.h5'
-    dm.preds_path = 'data/results/preds.h5'
     print("====== run test ======")
     preds = dm.test(conv_test_feat)
 
 if __name__ == "__main__":
-    train_da_model()
+    train_model()
     run_test()

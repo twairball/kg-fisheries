@@ -50,7 +50,7 @@ class PrecalcDAConvModel(PrecalcConvModel):
     def calc_train_conv_feats(self):
         print("(train) calculating convolution features")
         train_batches = self.create_train_batches()
-        conv_feat = self.model.predict_generator(train_batches, train_batches.nb_sample * self.data_augment_size)
+        conv_feat = self.model.predict_generator(train_batches, train_batches.nb_sample * (self.data_augment_size+1))
 
         print("(train) saving feats to file....")
         print("(train) conv feats: %s" % (conv_feat.shape,))

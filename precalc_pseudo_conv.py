@@ -42,13 +42,10 @@ class PrecalcPseudoModel(PrecalcConvModel):
             #  validation_data=(conv_val_feat, val_labels))
         pass
     
-    def create_train_batches(self):
-        return self.create_da_batches(self.path + 'train')
-    
-        def calc_train_conv_feats(self):
+    def calc_train_conv_feats(self):
         print("(train) calculating convolution features")
         train_batches = self.create_train_batches()
-        conv_feat = self.model.predict_generator(train_batches, train_batches.nb_sample * self.data_augment_size)
+        conv_feat = self.model.predict_generator(train_batches, train_batches.nb_sample)
 
         print("(train) saving feats to file....")
         print("(train) conv feats: %s" % (conv_feat.shape,))
@@ -56,7 +53,6 @@ class PrecalcPseudoModel(PrecalcConvModel):
         
         save_array(self.conv_feat_path, conv_feat)
         return conv_feat
-
 
 class DensePseudoMode(DenseModel):
     def __init__(self, path, p=0.8, input_shape=(512, 14, 14), data_augment_size=3):

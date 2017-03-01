@@ -18,7 +18,7 @@ from keras.optimizers import SGD, RMSprop, Adam
 from keras.preprocessing import image
 
 from kaggle import submit, push_to_kaggle
-from precalc_conv import *
+from precalc_conv import DenseModel, PrecalcConvTestModel, PrecalcConvModel
 
 class PrecalcDAConvModel(PrecalcConvModel):
     """
@@ -74,6 +74,10 @@ class DenseDAModel(DenseModel):
         da_trn_labels = np.concatenate([trn_labels]*(self.data_augment_size+1))
         return  da_trn_labels
 
+def precalc():
+    print("===== conv features =====")
+    pcm = PrecalcDAConvModel('data/')
+    (conv_feat, conv_val_feat) = pcm.calc_conv_feats()
 
 def train_da_model():
     print("===== loading data-augmented conv features =====")
@@ -106,6 +110,7 @@ def run_submit():
     push_to_kaggle('da_subm.gz')
 
 if __name__ == "__main__":
+    precalc()
     train_da_model()
     run_test()
     run_submit()

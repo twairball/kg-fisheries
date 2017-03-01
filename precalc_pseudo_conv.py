@@ -18,7 +18,7 @@ from keras.optimizers import SGD, RMSprop, Adam
 from keras.preprocessing import image
 
 from kaggle import submit, push_to_kaggle
-from precalc_conv import *
+from precalc_conv import DenseModel, PrecalcConvTestModel, PrecalcConvModel
 
 class DensePseudoModel(DenseModel):
     def __init__(self, path, p=0.8, input_shape=(512, 14, 14)):
@@ -72,7 +72,6 @@ def run_test():
     dm.load_model()
     print("====== run test ======")
     preds = dm.test(conv_test_feat)
-
 
 def run_submit():
     print("======= making submission ========")

@@ -9,7 +9,8 @@ import pandas as pd
 
 #import modules
 from utils import *
-from vgg16 import Vgg16
+# from vgg16 import Vgg16
+from vgg16bn import Vgg16BN as Vgg16
 from keras.models import Sequential
 from keras.layers.core import Flatten, Dense, Dropout, Lambda
 from keras.layers.convolutional import Convolution2D, MaxPooling2D, ZeroPadding2D
@@ -201,22 +202,14 @@ class DenseModel():
         return preds
 
 # main scripts
-def precalc_all():
+def precalc():
     print("===== conv features =====")
     pcm = PrecalcConvModel('data/')
     (conv_feat, conv_val_feat) = pcm.calc_conv_feats()
 
-    del pcm
-
     print("===== test conv features =====")
     tm = PrecalcConvTestModel('data/')
     tm.calc_conv_feats()
-
-    del tm 
-
-    print("===== train dense model =====")
-    dm = DenseModel('data/')
-    dm.train(conv_feat, conv_val_feat)
 
 def train_model():
     print("===== loading conv features =====")
@@ -240,5 +233,6 @@ def run_test():
     preds = dm.test(conv_test_feat)
 
 if __name__ == "__main__":
+    precalc()
     train_model()
     run_test()

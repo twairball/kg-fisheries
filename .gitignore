@@ -11,3 +11,4 @@ models/
 *.zip
 *.tgz
 .kaggle-cli
+.vscode

@@ -47,7 +47,7 @@ class PrecalcDAConvModel(PrecalcConvModel):
     def create_train_batches(self):
         return self.create_da_batches(self.path + 'train')
     
-        def calc_train_conv_feats(self):
+    def calc_train_conv_feats(self):
         print("(train) calculating convolution features")
         train_batches = self.create_train_batches()
         conv_feat = self.model.predict_generator(train_batches, train_batches.nb_sample * self.data_augment_size)
@@ -60,7 +60,7 @@ class PrecalcDAConvModel(PrecalcConvModel):
         return conv_feat
 
 
-class DenseDAMode(DenseModel):
+class DenseDAModel(DenseModel):
     def __init__(self, path, p=0.8, input_shape=(512, 14, 14), data_augment_size=3):
         dense_layers = self.dense_layers(p, input_shape)
         self.path = path
@@ -70,11 +70,13 @@ class DenseDAMode(DenseModel):
         self.data_augment_size = data_augment_size
 
     def get_train_labels(self):
-        return self.get_labels(self.path + 'train') * self.data_augment_size
+        trn_labels = self.get_labels(self.path + 'train')
+        da_trn_labels = np.concatenate([trn_labels]*(self.data_augment_size+1))
+        return  da_trn_labels
 
 
 def train_da_model():
-    print("===== loading data-augemented conv features =====")
+    print("===== loading data-augmented conv features =====")
     pcm = PrecalcDAConvModel('data/')
     (conv_feat, conv_val_feat) = pcm.get_conv_feats()
 
@@ -106,4 +108,4 @@ def run_submit():
 if __name__ == "__main__":
     train_da_model()
     run_test()
-    rub_submit()
+    run_submit()

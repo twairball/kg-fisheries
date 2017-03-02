@@ -148,10 +148,10 @@ class DenseModel():
             MaxPooling2D(input_shape=input_shape), 
             Flatten(),
             Dropout(p/2),
-            Dense(512, activation='relu'),
+            Dense(4096, activation='relu'),
             BatchNormalization(),
             Dropout(p/2),
-            Dense(512, activation='relu'),
+            Dense(4096, activation='relu'),
             BatchNormalization(),
             Dropout(p),
             Dense(8, activation='softmax')
@@ -159,7 +159,7 @@ class DenseModel():
     
     def dense_model(self, layers):
         model = Sequential(layers)
-        optimizer = Adam(lr=0.0001)
+        optimizer = Adam(lr=0.001)
         # optimizer = RMSprop(lr=0.00001, rho=0.7)
         model.compile(optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
         return model

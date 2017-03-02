@@ -141,10 +141,10 @@ class DenseModel():
         self.model = self.dense_model(dense_layers)
         self.model_path = path + 'models/conv_weights.h5'
         self.preds_path = path + 'results/preds.h5'
+        self.nb_epoch = 10
 
     def dense_layers(self, p=0.8, input_shape=(512, 14, 14)):
         return [
-            # MaxPooling2D(input_shape=conv_layers[-1].output_shape[1:]),
             MaxPooling2D(input_shape=input_shape), 
             Flatten(),
             Dropout(p/2),
@@ -179,7 +179,7 @@ class DenseModel():
 
     def train(self, conv_feat, conv_val_feat):
         batch_size = 32
-        nb_epoch = 10
+        nb_epoch = self.nb_epoch
         trn_labels = self.get_train_labels()
         val_labels = self.get_val_labels()
 

@@ -67,6 +67,7 @@ class DenseDAModel(DenseModel):
         self.model = self.dense_model(dense_layers)
         self.model_path = path + 'models/conv_da_weights.h5'
         self.preds_path = path + 'results/preds_da.h5'
+        self.nb_epoch = 15
         self.data_augment_size = data_augment_size
 
     def get_train_labels(self):

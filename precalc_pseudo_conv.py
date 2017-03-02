@@ -28,9 +28,6 @@ class DensePseudoModel(DenseModel):
         self.model_path = path + 'models/conv_psuedo_weights.h5'
         self.preds_path = path + 'results/preds_pseudo.h5'
 
-    def get_train_labels(self):
-        return self.get_labels(self.path + 'train') * self.data_augment_size
-
     def pseudo_train(self, conv_feat, conv_val_feat):
         batch_size = 32
         nb_epoch = 5

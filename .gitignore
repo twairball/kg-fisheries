@@ -7,6 +7,7 @@ data/
 download/
 submits/
 models/
+logs/
 *.ipynb
 *.zip
 *.tgz

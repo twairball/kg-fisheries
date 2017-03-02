@@ -148,10 +148,10 @@ class DenseModel():
             MaxPooling2D(input_shape=input_shape), 
             Flatten(),
             Dropout(p/2),
-            Dense(1024, activation='relu'),
+            Dense(512, activation='relu'),
             BatchNormalization(),
             Dropout(p/2),
-            Dense(1024, activation='relu'),
+            Dense(512, activation='relu'),
             BatchNormalization(),
             Dropout(p),
             Dense(8, activation='softmax')
@@ -159,7 +159,7 @@ class DenseModel():
     
     def dense_model(self, layers):
         model = Sequential(layers)
-        optimizer = Adam(lr=0.0003)
+        optimizer = Adam(lr=0.0005)
         # optimizer = RMSprop(lr=0.00001, rho=0.7)
         model.compile(optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
         return model
@@ -236,10 +236,10 @@ def run_submit():
     print("======= making submission ========")
     preds = load_array('data/results/preds.h5/')
     test_batch = get_batches('data/test/')
-    submit(preds, test_batch, 'base_subm.gz')
+    submit(preds, test_batch, 'submits/base_subm.gz')
 
     print("======= pushing to kaggle ========")
-    push_to_kaggle('base_subm.gz')
+    push_to_kaggle('submits/base_subm.gz')
 
 
 if __name__ == "__main__":

@@ -80,10 +80,10 @@ def run_submit():
     print("======= making submission ========")
     preds = load_array('data/results/preds_pseudo.h5/')
     test_batch = get_batches('data/test/')
-    submit(preds, test_batch, 'pseudo_subm.gz')
+    submit(preds, test_batch, 'submits/pseudo_subm.gz')
 
     print("======= pushing to kaggle ========")
-    push_to_kaggle('pseudo_subm.gz')
+    push_to_kaggle('submits/pseudo_subm.gz')
 
 if __name__ == "__main__":
     train_model()

@@ -104,10 +104,10 @@ def run_submit():
     print("======= making submission ========")
     preds = load_array('data/results/preds_da.h5/')
     test_batch = get_batches('data/test/')
-    submit(preds, test_batch, 'da_subm.gz')
+    submit(preds, test_batch, 'submits/da_subm.gz')
 
     print("======= pushing to kaggle ========")
-    push_to_kaggle('da_subm.gz')
+    push_to_kaggle('submits/da_subm.gz')
 
 if __name__ == "__main__":
     precalc()

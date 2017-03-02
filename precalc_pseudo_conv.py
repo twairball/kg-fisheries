@@ -61,7 +61,7 @@ def train_model():
     print("===== Fine-tuning with pseudo labels on test set =====")
     tm = PrecalcConvTestModel('data/')
     conv_test_feat = tm.get_conv_feats()
-    dm.pseudo_train(conv_feat, conv_val_feat, conv_val_feat, conv_test_feat)
+    dm.pseudo_train(conv_feat, conv_val_feat, conv_test_feat)
 
 
 def run_test():

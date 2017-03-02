@@ -232,7 +232,17 @@ def run_test():
     print("====== run test ======")
     preds = dm.test(conv_test_feat)
 
+def run_submit():
+    print("======= making submission ========")
+    preds = load_array('data/results/preds.h5/')
+    test_batch = get_batches('data/test/')
+    submit(preds, test_batch, 'base_subm.gz')
+
+    print("======= pushing to kaggle ========")
+    push_to_kaggle('base_subm.gz')
+
+
 if __name__ == "__main__":
-    precalc()
     train_model()
     run_test()
+    run_submit()

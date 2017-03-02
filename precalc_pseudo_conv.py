@@ -28,16 +28,16 @@ class DensePseudoModel(DenseModel):
         self.model_path = path + 'models/conv_psuedo_weights.h5'
         self.preds_path = path + 'results/preds_pseudo.h5'
 
-    def pseudo_train(self, conv_feat, conv_val_feat):
+    def pseudo_train(self, conv_feat, conv_val_feat, pseudo_feat):
         batch_size = 32
         nb_epoch = 5
         trn_labels = self.get_train_labels()
         val_labels = self.get_val_labels()
 
-        # predict validation features and combine with training
-        val_pseudo = self.model.predict(conv_val_feat, batch_size=batch_size)
-        comb_pseudo = np.concatenate([trn_labels, val_pseudo])
-        comb_feat = np.concatenate([conv_feat, conv_val_feat])
+        # predict pseudo features and combine with training
+        pseudo_labels = self.model.predict(pseudo_feat, batch_size=batch_size)
+        comb_pseudo = np.concatenate([trn_labels, pseudo_labels])
+        comb_feat = np.concatenate([conv_feat, pseudo_feat])
         print("(pseudo) labels: %d" % comb_pseudo.shape[0])
         print("(pseudo) combined features: %s" %(comb_feat.shape,))
 
@@ -55,8 +55,14 @@ def train_model():
     dm = DensePseudoModel('data/')
     dm.train(conv_feat, conv_val_feat)
 
-    print("===== Fine-tuning with pseudo labels =====")
-    dm.pseudo_train(conv_feat, conv_val_feat)
+    print("===== Fine-tuning with pseudo labels on validation set =====")
+    dm.pseudo_train(conv_feat, conv_val_feat, conv_val_feat)
+
+    print("===== Fine-tuning with pseudo labels on test set =====")
+    tm = PrecalcConvTestModel('data/')
+    conv_test_feat = tm.get_conv_feats()
+    dm.pseudo_train(conv_feat, conv_val_feat, conv_val_feat, conv_test_feat)
+
 
 def run_test():
     print("====== load test conv feats ======")

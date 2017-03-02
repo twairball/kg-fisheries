@@ -9,8 +9,8 @@ import pandas as pd
 
 #import modules
 from utils import *
-# from vgg16 import Vgg16
-from vgg16bn import Vgg16BN as Vgg16
+from vgg16 import Vgg16
+# from vgg16bn import Vgg16BN as Vgg16
 from keras.models import Sequential
 from keras.layers.core import Flatten, Dense, Dropout, Lambda
 from keras.layers.convolutional import Convolution2D, MaxPooling2D, ZeroPadding2D
@@ -148,10 +148,10 @@ class DenseModel():
             MaxPooling2D(input_shape=input_shape), 
             Flatten(),
             Dropout(p/2),
-            Dense(4096, activation='relu'),
+            Dense(1024, activation='relu'),
             BatchNormalization(),
             Dropout(p/2),
-            Dense(4096, activation='relu'),
+            Dense(1024, activation='relu'),
             BatchNormalization(),
             Dropout(p),
             Dense(8, activation='softmax')
@@ -159,7 +159,7 @@ class DenseModel():
     
     def dense_model(self, layers):
         model = Sequential(layers)
-        optimizer = Adam(lr=0.001)
+        optimizer = Adam(lr=0.0003)
         # optimizer = RMSprop(lr=0.00001, rho=0.7)
         model.compile(optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
         return model
@@ -243,6 +243,7 @@ def run_submit():
 
 
 if __name__ == "__main__":
+    precalc()
     train_model()
     run_test()
     run_submit()

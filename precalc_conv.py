@@ -141,7 +141,7 @@ class DenseModel():
         self.model = self.dense_model(dense_layers)
         self.model_path = path + 'models/conv_weights.h5'
         self.preds_path = path + 'results/preds.h5'
-        self.nb_epoch = 10
+        self.nb_epoch = 15
 
     def dense_layers(self, p=0.8, input_shape=(512, 14, 14)):
         return [
@@ -243,7 +243,7 @@ def run_submit():
 
 
 if __name__ == "__main__":
-    precalc()
+    # precalc()
     train_model()
     run_test()
     run_submit()

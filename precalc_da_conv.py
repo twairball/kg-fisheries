@@ -111,7 +111,7 @@ def run_submit():
     push_to_kaggle('submits/da_subm.gz')
 
 if __name__ == "__main__":
-    precalc()
+    # precalc()
     train_da_model()
     run_test()
     run_submit()

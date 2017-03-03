@@ -33,7 +33,10 @@ class BaseModel():
 
     def create_model(self):
         lr = 0.0001
-        model = Vgg16BN().ft(8).model # 8 classes
+        vgg = Vgg16BN()
+        vgg.ft(8) # 8 classes
+        model = vgg.model
+        # model = Vgg16BN().ft(8).model # 8 classes
         model.compile(optimizer=Adam(lr=lr),
                 loss='categorical_crossentropy', metrics=['accuracy'])
         return model
@@ -68,7 +71,8 @@ class BaseModel():
         self.model.fit_generator(train_batches, 
             samples_per_epoch = train_batches.nb_sample, 
             nb_epoch = nb_epoch, 
-            validation_data = val_batches)
+            validation_data = val_batches, 
+            nb_val_samples = val_batches.nb_sample)
 
         self.model.save_weights(self.model_path)
         return self.model

@@ -33,7 +33,7 @@ class BaseModel():
     
     def _vgg_pretrained(self):
         # VGG pretrained convolution layers
-        model = Vgg16BN(include_tope=False).model
+        model = Vgg16BN(include_top=False).model
         for layer in model.layers: layer.trainable=False
         return model 
 

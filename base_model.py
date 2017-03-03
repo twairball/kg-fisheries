@@ -119,27 +119,22 @@ class BaseModel():
         print("(test) path: %s" % self.preds_path)
 
         save_array(self.preds_path, preds)
-        return preds
+        return (preds, test_batches)
 
 ##
 ## main scripts
 ##
-def run_submit():
-    print("======= making submission ========")
-    preds = load_array('data/results/base_model_preds.h5/')
-    test_batch = get_batches('data/test/')
-    submit(preds, test_batch, 'submits/base_model_subm.gz')
-
-    print("======= pushing to kaggle ========")
-    push_to_kaggle('submits/base_model_subm.gz')
-
 if __name__ == "__main__":
     print("====== training model ======")
     m = BaseModel('data/')
     m.train()
 
     print("====== running test ======")
-    m.test()
+    preds, test_batches = m.test()
 
-    run_submit()
+    print("======= making submission ========")
+    submits_path = 'submits/base_model_subm.gz'
+    submit(preds, test_batches, submits_path)
 
+    print("======= pushing to kaggle ========")
+    push_to_kaggle(submits_path)

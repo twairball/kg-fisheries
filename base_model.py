@@ -37,26 +37,28 @@ class BaseModel():
         for layer in model.layers: layer.trainable=False
         return model 
 
-    def _add_FCBlock(self, model, dropout_p=0.5):
-        for layer in self.dense_layers(dropout_p):
+    def _add_FCBlock(self, model, dropout_p, dense_nodes):
+        for layer in self.dense_layers(dropout_p=dropout_p, dense_nodes=dense_nodes):
             model.add(layer)
         return model 
 
-    def dense_layers(self, dropout_p=0.5):
+    def dense_layers(self, dropout_p, dense_nodes):
         return [
-            Dense(512, activation='relu'), 
+            Dense(dense_nodes, activation='relu'), 
             BatchNormalization(), 
             Dropout(dropout_p)
         ]
 
-    def create_model(self, lr=0.0001):
+    def create_model(self, lr=0.0001, dropout_p=0.5, dense_nodes=512):
         model = self._vgg_pretrained()
         model.add(Flatten())
         model.add(Dropout(0.5))
-        
+
         # add 2 sets of dense layers. 
-        model = self._add_FCBlock(model)
-        model = self._add_FCBlock(model)
+        model = self._add_FCBlock(model, 
+            dropout_p=dropout_p, dense_nodes=dense_nodes)
+        model = self._add_FCBlock(model, 
+            dropout_p=dropout_p, dense_nodes=dense_nodes)
         
         # classification layer -- 8 classes
         model.add(Dense(8, activation='softmax'))
@@ -64,6 +66,8 @@ class BaseModel():
         # compile with learning rate
         model.compile(optimizer=Adam(lr=lr),
                 loss='categorical_crossentropy', metrics=['accuracy'])
+
+        print("(model) lr=%s, dense_nodes=%s, dropout=%s" % (lr, dense_nodes, dropout_p))
         return model
 
     ##
@@ -88,7 +92,7 @@ class BaseModel():
     ##
     ## Training
     ##
-    def train(self, nb_epoch = 10):
+    def train(self, nb_epoch = 15):
         batch_size = 32
         train_batches = self.create_train_batches()
         val_batches = self.create_val_batches()
@@ -109,7 +113,7 @@ class BaseModel():
     ## Test
     ##
     def create_test_batches(self):
-        return self.create_batches(self.path + 'test')
+        return self.create_batches(self.path + 'test', shuffle=False)
 
     def test(self):
         test_batches = self.create_test_batches()

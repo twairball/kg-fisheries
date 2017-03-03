@@ -37,13 +37,19 @@ class BaseModel():
         for layer in model.layers: layer.trainable=False
         return model 
 
-    def _add_FCBlock(self, model):
-        model.add(Dense(4096, activation='relu'))
-        model.add(BatchNormalization())
-        model.add(Dropout(0.5))
+    def _add_FCBlock(self, model, dropout_p=0.5):
+        for layer in self.dense_layers(dropout_p):
+            model.add(layer)
         return model 
 
-    def create_model(self, lr=0.0001):
+    def dense_layers(self, dropout_p=0.5):
+        return [
+            Dense(4096, activation='relu'), 
+            BatchNormalization(), 
+            Dropout(dropout_p)
+        ]
+
+    def create_model(self, lr=0.00001):
         model = self._vgg_pretrained()
         model.add(Flatten())
 
@@ -134,4 +140,6 @@ if __name__ == "__main__":
 
     print("====== running test ======")
     m.test()
+
+    run_submit()
 

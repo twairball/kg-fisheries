@@ -129,7 +129,22 @@ class BaseModel():
 ##
 ## main scripts
 ##
-if __name__ == "__main__":
+def test_and_submit():
+    print("====== loading model ======")
+    m = BaseModel('data/')
+    m.load_model()
+
+    print("====== running test ======")
+    preds, test_batches = m.test()
+
+    print("======= making submission ========")
+    submits_path = 'submits/base_model_subm.gz'
+    submit(preds, test_batches, submits_path)
+
+    print("======= pushing to kaggle ========")
+    push_to_kaggle(submits_path)
+
+def train_only():
     print("====== training model ======")
     m = BaseModel('data/')
     m.train()
@@ -141,5 +156,5 @@ if __name__ == "__main__":
     submits_path = 'submits/base_model_subm.gz'
     submit(preds, test_batches, submits_path)
 
-    # print("======= pushing to kaggle ========")
-    # push_to_kaggle(submits_path)
+if __name__ == "__main__":
+    test_and_submit()

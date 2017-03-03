@@ -25,7 +25,7 @@ class BaseModel():
     """
         VGG16 base model with fine-tuned dense layers
     """
-    def __init__(self, path, p=0.8):
+    def __init__(self, path):
         self.path = path
         self.model = self.create_model()
         self.model_path = path + 'models/model_weights.h5'
@@ -44,15 +44,16 @@ class BaseModel():
 
     def dense_layers(self, dropout_p=0.5):
         return [
-            Dense(4096, activation='relu'), 
+            Dense(512, activation='relu'), 
             BatchNormalization(), 
             Dropout(dropout_p)
         ]
 
-    def create_model(self, lr=0.00001):
+    def create_model(self, lr=0.0001):
         model = self._vgg_pretrained()
         model.add(Flatten())
-
+        model.add(Dropout(0.5))
+        
         # add 2 sets of dense layers. 
         model = self._add_FCBlock(model)
         model = self._add_FCBlock(model)
@@ -136,5 +137,5 @@ if __name__ == "__main__":
     submits_path = 'submits/base_model_subm.gz'
     submit(preds, test_batches, submits_path)
 
-    print("======= pushing to kaggle ========")
-    push_to_kaggle(submits_path)
+    # print("======= pushing to kaggle ========")
+    # push_to_kaggle(submits_path)

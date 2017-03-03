@@ -30,13 +30,31 @@ class BaseModel():
         self.model = self.create_model()
         self.model_path = path + 'models/model_weights.h5'
         self.preds_path = path + 'results/model_preds.h5'
+    
+    def _vgg_pretrained(self):
+        # VGG pretrained convolution layers
+        model = Vgg16BN(include_tope=False).model
+        for layer in model.layers: layer.trainable=False
+        return model 
 
-    def create_model(self):
-        lr = 0.0001
-        vgg = Vgg16BN()
-        vgg.ft(8) # 8 classes
-        model = vgg.model
-        # model = Vgg16BN().ft(8).model # 8 classes
+    def _add_FCBlock(self, model):
+        model.add(Dense(4096, activation='relu'))
+        model.add(BatchNormalization())
+        model.add(Dropout(0.5))
+        return model 
+
+    def create_model(self, lr=0.0001):
+        model = self._vgg_pretrained()
+        model.add(Flatten())
+
+        # add 2 sets of dense layers. 
+        model = self._add_FCBlock(model)
+        model = self._add_FCBlock(model)
+        
+        # classification layer -- 8 classes
+        model.add(Dense(8, activation='softmax'))
+
+        # compile with learning rate
         model.compile(optimizer=Adam(lr=lr),
                 loss='categorical_crossentropy', metrics=['accuracy'])
         return model
@@ -87,9 +105,8 @@ class BaseModel():
         return self.create_batches(self.path + 'test')
 
     def test(self):
-        batch_size = 32
         test_batches = self.create_test_batches()
-        preds = self.model.predict_generator(test_batches, batch_size = batch_size)
+        preds = self.model.predict_generator(test_batches, test_batches.nb_sample)
 
         print("(test) saving predictions to file....")
         print("(test) preds: %s" % (preds.shape,))

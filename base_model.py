@@ -29,8 +29,8 @@ class BaseModel():
         self.path = path
         self.model = self.create_model(lr=lr, dropout_p=dropout_p, dense_nodes=dense_nodes)
         self.model_name = "model_lr%s_p%s_dn%s" % (lr, dropout_p, dense_nodes)
-        self.model_path = path + 'models/' + model_name + '.h5'
-        self.preds_path = path + 'results/' + model_name + '.h5'
+        self.model_path = path + 'models/' + self.model_name + '.h5'
+        self.preds_path = path + 'results/' + self.model_name + '.h5'
     
     def _vgg_pretrained(self):
         # VGG pretrained convolution layers

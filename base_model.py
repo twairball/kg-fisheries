@@ -25,11 +25,12 @@ class BaseModel():
     """
         VGG16 base model with fine-tuned dense layers
     """
-    def __init__(self, path):
+    def __init__(self, path, lr=0.0001, dropout_p=0.5, dense_nodes=512):
         self.path = path
-        self.model = self.create_model()
-        self.model_path = path + 'models/model_weights.h5'
-        self.preds_path = path + 'results/model_preds.h5'
+        self.model = self.create_model(lr=lr, dropout_p=dropout_p, dense_nodes=dense_nodes)
+        self.model_name = "model_lr%s_p%s_dn%s" % (lr, dropout_p, dense_nodes)
+        self.model_path = path + 'models/' + model_name + '.h5'
+        self.preds_path = path + 'results/' + model_name + '.h5'
     
     def _vgg_pretrained(self):
         # VGG pretrained convolution layers
@@ -49,7 +50,7 @@ class BaseModel():
             Dropout(dropout_p)
         ]
 
-    def create_model(self, lr=0.0001, dropout_p=0.5, dense_nodes=512):
+    def create_model(self, lr, dropout_p, dense_nodes):
         model = self._vgg_pretrained()
         model.add(Flatten())
         model.add(Dropout(0.5))
@@ -126,24 +127,6 @@ class BaseModel():
         save_array(self.preds_path, preds)
         return (preds, test_batches)
 
-##
-## main scripts
-##
-def test_and_submit():
-    print("====== loading model ======")
-    m = BaseModel('data/')
-    m.load_model()
-
-    print("====== running test ======")
-    preds, test_batches = m.test()
-
-    print("======= making submission ========")
-    submits_path = 'submits/base_model_subm.gz'
-    submit(preds, test_batches, submits_path)
-
-    print("======= pushing to kaggle ========")
-    push_to_kaggle(submits_path)
-
 def train_only():
     print("====== training model ======")
     m = BaseModel('data/')
@@ -157,4 +140,4 @@ def train_only():
     submit(preds, test_batches, submits_path)
 
 if __name__ == "__main__":
-    test_and_submit()
+    train_only()

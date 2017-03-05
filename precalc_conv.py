@@ -247,10 +247,10 @@ def train_lots():
     (conv_feat, conv_val_feat) = pcm.get_conv_feats()
 
     for dn in [128, 256, 512]:
-        model = DenseModel('data/', dense_nodes=dn)
+        model = DenseModel('data/', dense_nodes=dn, lr=0.00001)
         print("====== training model ======")
         print("model: %s" % model.model_name)
-        model.train(conv_feat, conv_val_feat)
+        model.train(conv_feat, conv_val_feat, nb_epoch=20)
         print("")
         print("")
 

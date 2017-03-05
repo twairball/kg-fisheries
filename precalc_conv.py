@@ -241,18 +241,5 @@ def run_submit():
     print("======= pushing to kaggle ========")
     push_to_kaggle('submits/base_subm.gz')
 
-def train_lots():
-    print("===== loading conv features =====")
-    pcm = PrecalcConvModel('data/')
-    (conv_feat, conv_val_feat) = pcm.get_conv_feats()
-
-    for dn in [4096, 2048]:
-        model = DenseModel('data/', dense_nodes=dn, lr=0.00001)
-        print("====== training model ======")
-        print("model: %s" % model.model_name)
-        model.train(conv_feat, conv_val_feat, nb_epoch=15)
-        print("")
-        print("")
-
 if __name__ == "__main__":
-    train_lots()
+   train_model()

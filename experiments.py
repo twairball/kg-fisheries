@@ -35,3 +35,4 @@ def train_dense_nodes():
         train_one(m)
 
 if __name__ == "__main__":
+    train_dense_nodes()

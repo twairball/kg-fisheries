@@ -135,31 +135,32 @@ class DenseModel():
         Dense layer with batch norm. 
         Feed convolution features as input
     """
-    def __init__(self, path, p=0.8, input_shape=(512, 14, 14)):
-        dense_layers = self.dense_layers(p, input_shape)
+    def __init__(self, path, input_shape=(512, 14, 14), lr=0.0001, dropout_p=0.5, dense_nodes=512):
+        dense_layers = self.dense_layers(input_shape=input_shape, dropout_p=dropout_p, dense_nodes=dense_nodes)
         self.path = path
         self.model = self.dense_model(dense_layers)
-        self.model_path = path + 'models/conv_weights.h5'
-        self.preds_path = path + 'results/preds.h5'
-        self.nb_epoch = 15
+        self.model_name = "precalc_lr%s_p%s_dn%s" % (lr, dropout_p, dense_nodes)
+        self.model_path = path + 'models/' + self.model_name + '.h5'
+        self.preds_path = path + 'results/' + self.model_name + '.h5'
 
-    def dense_layers(self, p=0.8, input_shape=(512, 14, 14)):
+
+    def dense_layers(self, input_shape=(512, 14, 14), dropout_p=0.5, dense_nodes=512):
         return [
             MaxPooling2D(input_shape=input_shape), 
             Flatten(),
-            Dropout(p/2),
-            Dense(512, activation='relu'),
+            Dropout(dropout_p),
+            Dense(dense_nodes, activation='relu'),
             BatchNormalization(),
-            Dropout(p/2),
-            Dense(512, activation='relu'),
+            Dropout(dropout_p),
+            Dense(dense_nodes, activation='relu'),
             BatchNormalization(),
-            Dropout(p),
+            Dropout(dropout_p),
             Dense(8, activation='softmax')
             ]
     
-    def dense_model(self, layers):
+    def dense_model(self, layers, lr=0.0001, dropout_p=0.5, dense_nodes=512):
         model = Sequential(layers)
-        optimizer = Adam(lr=0.0005)
+        optimizer = Adam(lr=lr)
         # optimizer = RMSprop(lr=0.00001, rho=0.7)
         model.compile(optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
         return model
@@ -177,9 +178,8 @@ class DenseModel():
     def get_val_labels(self):
         return self.get_labels(self.path + 'valid')
 
-    def train(self, conv_feat, conv_val_feat):
+    def train(self, conv_feat, conv_val_feat, nb_epoch=15):
         batch_size = 32
-        nb_epoch = self.nb_epoch
         trn_labels = self.get_train_labels()
         val_labels = self.get_val_labels()
 
@@ -241,9 +241,18 @@ def run_submit():
     print("======= pushing to kaggle ========")
     push_to_kaggle('submits/base_subm.gz')
 
+def train_lots():
+    print("===== loading conv features =====")
+    pcm = PrecalcConvModel('data/')
+    (conv_feat, conv_val_feat) = pcm.get_conv_feats()
+
+    for dn in [128, 256, 512]:
+        model = DenseModel('data/', dense_nodes=dn)
+        print("====== training model ======")
+        print("model: %s" % model.model_name)
+        model.train(conv_feat, conv_val_feat)
+        print("")
+        print("")
 
 if __name__ == "__main__":
-    # precalc()
-    train_model()
-    run_test()
-    run_submit()
+    train_lots()

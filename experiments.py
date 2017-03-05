@@ -29,10 +29,9 @@ def train_one(model):
     print("")
     print("")
 
-def train_lots():
+def train_dense_nodes():
     for dn in [4096, 2048, 1024, 512, 256, 128]:
         m = BaseModel('data/', dense_nodes=dn)
         train_one(m)
 
 if __name__ == "__main__":
-    train_lots()

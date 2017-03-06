@@ -244,6 +244,6 @@ def run_submit(m):
 
 if __name__ == "__main__":
     m = DenseModel('data/', lr=1e-5, dense_nodes=512)
-    train_model(m)
+    # train_model(m)
     run_test(m)
     run_submit(m)

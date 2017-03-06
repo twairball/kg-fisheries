@@ -31,7 +31,7 @@ def submit(preds, test_batches, filepath):
     
     # make submission dataframe
     df_img_names = img_names(test_batches.filenames)
-    subm = do_clip(preds,0.98)
+    subm = do_clip(preds,0.93)
     submission = preprocess(subm)
     submission = pd.concat([df_img_names, submission], axis=1)
 

@@ -61,13 +61,14 @@ class PrecalcDAConvModel(PrecalcConvModel):
 
 
 class DenseDAModel(DenseModel):
-    def __init__(self, path, p=0.8, input_shape=(512, 14, 14), data_augment_size=3):
-        dense_layers = self.dense_layers(p, input_shape)
+    def __init__(self, path, input_shape=(512, 14, 14), lr=0.0001, dropout_p=0.5, dense_nodes=512, data_augment_size=3):
+        dense_layers = self.dense_layers(input_shape=input_shape, dropout_p=dropout_p, dense_nodes=dense_nodes)
         self.path = path
         self.model = self.dense_model(dense_layers)
-        self.model_path = path + 'models/conv_da_weights.h5'
-        self.preds_path = path + 'results/preds_da.h5'
-        self.nb_epoch = 15
+        self.model_name = "precalc_da_lr%s_p%s_dn%s" % (lr, dropout_p, dense_nodes)
+        self.model_path = path + 'models/' + self.model_name + '.h5'
+        self.preds_path = path + 'results/' + self.model_name + '.h5'
+        self.log_path = 'logs/' + self.model_name  + '_log.csv'
         self.data_augment_size = data_augment_size
 
     def get_train_labels(self):

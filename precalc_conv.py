@@ -17,6 +17,7 @@ from keras.layers.convolutional import Convolution2D, MaxPooling2D, ZeroPadding2
 from keras.layers.pooling import GlobalAveragePooling2D
 from keras.optimizers import SGD, RMSprop, Adam
 from keras.preprocessing import image
+from keras.callbacks import CSVLogger
 
 from kaggle import submit, push_to_kaggle
 
@@ -142,6 +143,7 @@ class DenseModel():
         self.model_name = "precalc_lr%s_p%s_dn%s" % (lr, dropout_p, dense_nodes)
         self.model_path = path + 'models/' + self.model_name + '.h5'
         self.preds_path = path + 'results/' + self.model_name + '.h5'
+        self.log_path = 'logs/' + self.model_name  + '_log.csv'
 
 
     def dense_layers(self, input_shape=(512, 14, 14), dropout_p=0.5, dense_nodes=512):
@@ -182,9 +184,12 @@ class DenseModel():
         batch_size = 32
         trn_labels = self.get_train_labels()
         val_labels = self.get_val_labels()
+        
+        # csv logger
+        csv_logger = CSVLogger(self.log_path, separator=',', append=False)
 
         self.model.fit(conv_feat, trn_labels, batch_size=batch_size, nb_epoch=nb_epoch,
-            validation_data=(conv_val_feat, val_labels))
+            validation_data=(conv_val_feat, val_labels), callbacks=[csv_logger])
         self.model.save_weights(self.model_path)
     
     def load_model(self):

@@ -216,35 +216,34 @@ def precalc():
     tm = PrecalcConvTestModel('data/')
     tm.calc_conv_feats()
 
-def train_model():
+def train_model(m):
     print("===== loading conv features =====")
     pcm = PrecalcConvModel('data/')
     (conv_feat, conv_val_feat) = pcm.get_conv_feats()
 
     print("===== train dense model =====")
-    dm = DenseModel('data/')
-    dm.train(conv_feat, conv_val_feat)
+    m.train(conv_feat, conv_val_feat, nb_epoch=14)
 
-def run_test():
+def run_test(m):
     print("====== load test conv feats ======")
     tm = PrecalcConvTestModel('data/')
     conv_test_feat = tm.get_conv_feats()
 
-    # run test
-    print("====== load dense model ======")
-    dm = DenseModel('data/')
-    dm.load_model()
     print("====== run test ======")
-    preds = dm.test(conv_test_feat)
+    preds = m.test(conv_test_feat)
 
-def run_submit():
+def run_submit(m):
     print("======= making submission ========")
-    preds = load_array('data/results/preds.h5/')
+    preds = load_array(m.preds_path)
     test_batch = get_batches('data/test/')
-    submit(preds, test_batch, 'submits/base_subm.gz')
+    submit_path = 'submits/' + m.model_name + '_subm.gz'
+    submit(preds, test_batch, submit_path)
 
     print("======= pushing to kaggle ========")
-    push_to_kaggle('submits/base_subm.gz')
+    push_to_kaggle(submit_path)
 
 if __name__ == "__main__":
-   train_model()
+    m = DenseModel('data/', lr=1e-5, dense_nodes=512)
+    train_model(m)
+    run_test(m)
+    run_submit(m)

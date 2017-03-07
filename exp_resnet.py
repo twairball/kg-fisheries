@@ -21,6 +21,10 @@ def pre_sample():
     print("model output shape: %s" % (pcm.model_output_shape(),))
 
 def train_lr():
+    print("===== loading conv features =====")
+    pcm = PrecalcResnet('data/')
+    (conv_feat, conv_val_feat) = pcm.get_conv_feats()
+
     for lr in [1e-3, 1e-4, 1e-5, 1e-6]:
         model = ResnetDenseModel('data/', lr=lr)
         print("====== training model ======")
@@ -30,4 +34,5 @@ def train_lr():
         print("")
 
 if __name__ == "__main__":
-    precalc()
+    # precalc()
+    train_lr()

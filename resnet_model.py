@@ -43,13 +43,16 @@ class ResnetDenseModel(DenseModel):
     """
     def __init__(self, path, input_shape=(2048,1,1), lr=1e-4, momentum=0.9, decay=0.0):
         self.path = path
-        self.model = self.dense_model(input_shape)
+        self.model = self.dense_model(lr=lr, 
+            momentum=momentum, 
+            decay=decay, 
+            input_shape=input_shape)
         self.model_name = "rn_dense_lr%s_mm%s_dc%s" % (lr, momentum, decay)
         self.model_path = path + 'models/' + self.model_name + '.h5'
         self.preds_path = path + 'results/' + self.model_name + '.h5'
         self.log_path = 'logs/' + self.model_name  + '_log.csv'
     
-    def dense_model(self, input_shape=(2048,1,1), lr, momentum, decay):
+    def dense_model(self, lr, momentum, decay, input_shape=(2048,1,1)):
         input = Input(shape=input_shape)
         x = Flatten()(input)
         x = Dense(8, activation='softmax', name='fc')(x)

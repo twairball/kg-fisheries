@@ -1,4 +1,5 @@
 from keras.applications.resnet50 import ResNet50
+from keras.models import Model
 from keras.layers import Input
 from keras.layers.core import Flatten, Dense, Dropout, Lambda
 from keras.layers.convolutional import Convolution2D, MaxPooling2D, ZeroPadding2D

@@ -125,7 +125,7 @@ class PrecalcConvTestModel(PrecalcConvModel):
         print("(test) conv feats: %s" % (conv_test_feat.shape,))
         print("(test) path: %s" % self.conv_test_feat_path)
 
-        save_array(conv_test_feat_path, conv_test_feat)
+        save_array(self.conv_test_feat_path, conv_test_feat)
         return conv_test_feat
 
     def load_conv_feats(self):

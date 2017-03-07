@@ -17,6 +17,8 @@ from keras.layers.convolutional import Convolution2D, MaxPooling2D, ZeroPadding2
 from keras.layers.pooling import GlobalAveragePooling2D
 from keras.optimizers import SGD, RMSprop, Adam
 from keras.preprocessing import image
+from keras.callbacks import ModelCheckpoint
+from keras.callbacks import CSVLogger
 
 from kaggle import submit, push_to_kaggle
 
@@ -31,7 +33,9 @@ class BaseModel():
         self.model_name = "model_lr%s_p%s_dn%s" % (lr, dropout_p, dense_nodes)
         self.model_path = path + 'models/' + self.model_name + '.h5'
         self.preds_path = path + 'results/' + self.model_name + '.h5'
-    
+        self.log_path = 'logs/' + self.model_name  + '_log.csv'
+
+
     def _vgg_pretrained(self):
         # VGG pretrained convolution layers
         model = Vgg16BN(include_top=False).model
@@ -98,13 +102,20 @@ class BaseModel():
         train_batches = self.create_train_batches()
         val_batches = self.create_val_batches()
 
+        # csv logger
+        csv_logger = CSVLogger(self.log_path, separator=',', append=False)
+
+        # save model 
+        checkpointer = ModelCheckpoint(filepath=self.model_path, 
+            verbose=1, save_best_only=True)
+
         self.model.fit_generator(train_batches, 
             samples_per_epoch = train_batches.nb_sample, 
             nb_epoch = nb_epoch, 
             validation_data = val_batches, 
-            nb_val_samples = val_batches.nb_sample)
+            nb_val_samples = val_batches.nb_sample, 
+            callbacks=[checkpointer, csv_logger])
 
-        self.model.save_weights(self.model_path)
         return self.model
     
     def load_model(self):

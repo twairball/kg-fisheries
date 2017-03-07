@@ -17,6 +17,7 @@ from keras.layers.convolutional import Convolution2D, MaxPooling2D, ZeroPadding2
 from keras.layers.pooling import GlobalAveragePooling2D
 from keras.optimizers import SGD, RMSprop, Adam
 from keras.preprocessing import image
+from keras.callbacks import ModelCheckpoint
 from keras.callbacks import CSVLogger
 
 from kaggle import submit, push_to_kaggle
@@ -104,10 +105,13 @@ class PrecalcConvTestModel(PrecalcConvModel):
     """
         Precalculate test convolution features 
     """
+    def __init__(self, path):
+        self.path = path
+        self.model = self.conv_model()
+        self.conv_test_feat_path = self.path+'results/conv_test_feat.dat'
 
     def get_conv_feats(self):
-        conv_test_feat_path = self.path+'results/conv_test_feat.dat'
-        if os.path.isdir(conv_test_feat_path):
+        if os.path.isdir(self.conv_test_feat_path):
             return self.load_conv_feats()
         else:
             return self.calc_conv_feats()
@@ -118,17 +122,15 @@ class PrecalcConvTestModel(PrecalcConvModel):
         conv_test_feat = self.model.predict_generator(test_batches, test_batches.nb_sample)
 
         print("(test) saving feats to file....")
-        conv_test_feat_path = self.path+'results/conv_test_feat.dat'
         print("(test) conv feats: %s" % (conv_test_feat.shape,))
-        print("(test) path: %s" % conv_test_feat_path)
+        print("(test) path: %s" % self.conv_test_feat_path)
 
         save_array(conv_test_feat_path, conv_test_feat)
         return conv_test_feat
 
     def load_conv_feats(self):
         print("(test) loading convolution features from file...")
-        conv_test_feat_path = self.path+'results/conv_test_feat.dat'
-        conv_test_feat = load_array(conv_test_feat_path)
+        conv_test_feat = load_array(self.conv_test_feat_path)
         return conv_test_feat
 
 class DenseModel():
@@ -188,8 +190,15 @@ class DenseModel():
         # csv logger
         csv_logger = CSVLogger(self.log_path, separator=',', append=False)
 
-        self.model.fit(conv_feat, trn_labels, batch_size=batch_size, nb_epoch=nb_epoch,
-            validation_data=(conv_val_feat, val_labels), callbacks=[csv_logger])
+        # save model 
+        checkpointer = ModelCheckpoint(filepath=self.model_path, 
+            verbose=1, save_best_only=True)
+
+        self.model.fit(conv_feat, trn_labels, 
+            batch_size=batch_size, 
+            nb_epoch=nb_epoch,
+            validation_data=(conv_val_feat, val_labels), 
+            callbacks=[csv_logger, checkpointer])
         self.model.save_weights(self.model_path)
     
     def load_model(self):
@@ -244,6 +253,7 @@ def run_submit(m):
 
 if __name__ == "__main__":
     m = DenseModel('data/', lr=1e-5, dense_nodes=512)
+    m.load_model()
     # train_model(m)
     run_test(m)
     run_submit(m)

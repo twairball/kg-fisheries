@@ -29,7 +29,7 @@ def train_lr():
         model = ResnetDenseModel('data/', lr=lr)
         print("====== training model ======")
         print("model: %s" % model.model_name)
-        model.train(nb_epoch=20)
+        model.train(conv_feat, conv_val_feat, nb_epoch=20)
         print("")
         print("")
 

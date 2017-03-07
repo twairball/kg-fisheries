@@ -60,7 +60,8 @@ class ResnetDenseModel(DenseModel):
         x = Dense(8, activation='softmax', name='fc')(x)
 
         model = Model(input, x)
-        optimizer = SGD(lr=lr, momentum=momentum, decay=decay, nesterov = True)
+        # optimizer = SGD(lr=lr, momentum=momentum, decay=decay, nesterov = True)
+        optimizer = Adam(lr=lr)
         model.compile(loss='categorical_crossentropy', optimizer = optimizer, metrics = ['accuracy'])
         return model 
 

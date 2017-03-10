@@ -71,12 +71,8 @@ class ResnetModel(BaseModel):
     """
     def __init__(self, path, lr=1e-4, momentum=0.9, decay=0.0):
         self.model_name = "resnet50_lr%s_mm%s_dc%s" % (lr, momentum, decay)
-        self.model_path = path + 'models/' + self.model_name + '.h5'
-        self.preds_path = path + 'results/' + self.model_name + '.h5'
-        self.log_path = 'logs/' + self.model_name  + '_log.csv'
         self.model = self.create_model(lr=lr, momentum=momentum, decay=decay)
 
-    
     def create_model(self, lr, momentum, decay):
         # pretrained ResNet50
         resnet_model = ResNet50(include_top=False)

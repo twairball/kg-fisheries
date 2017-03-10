@@ -22,6 +22,23 @@ from keras.callbacks import CSVLogger
 
 from kaggle import submit, push_to_kaggle
 
+class lazy_property(object):
+    '''
+    meant to be used for lazy evaluation of an object attribute.
+    property should represent non-mutable data, as it replaces itself.
+    '''
+
+    def __init__(self,fget):
+        self.fget = fget
+        self.func_name = fget.__name__
+
+    def __get__(self,obj,cls):
+        if obj is None:
+            return None
+        value = self.fget(obj)
+        setattr(obj,self.func_name,value)
+        return value
+
 
 class BaseModel():
     """
@@ -31,10 +48,18 @@ class BaseModel():
         self.path = path
         self.model = self.create_model(lr=lr, dropout_p=dropout_p, dense_nodes=dense_nodes)
         self.model_name = "model_lr%s_p%s_dn%s" % (lr, dropout_p, dense_nodes)
-        self.model_path = path + 'models/' + self.model_name + '.h5'
-        self.preds_path = path + 'results/' + self.model_name + '.h5'
-        self.log_path = 'logs/' + self.model_name  + '_log.csv'
 
+    @lazy_property
+    def model_path(self):
+        return self.path + 'models/' + self.model_name + '.h5'
+
+    @lazy_property
+    def preds_path(self):
+        return self.path + 'results/' + self.model_name + '.h5'
+    
+    @lazy_property
+    def log_path(self):
+        return 'logs/' + self.model_name  + '_log.csv'
 
     def _vgg_pretrained(self):
         # VGG pretrained convolution layers

@@ -22,6 +22,8 @@ from keras.callbacks import CSVLogger
 
 from kaggle import submit, push_to_kaggle
 
+from base_model import lazy_property
+
 class PrecalcConvModel():
     """
         Precalculate convolution features using pretrained VGG
@@ -143,10 +145,18 @@ class DenseModel():
         self.path = path
         self.model = self.dense_model(dense_layers)
         self.model_name = "precalc_lr%s_p%s_dn%s" % (lr, dropout_p, dense_nodes)
-        self.model_path = path + 'models/' + self.model_name + '.h5'
-        self.preds_path = path + 'results/' + self.model_name + '.h5'
-        self.log_path = 'logs/' + self.model_name  + '_log.csv'
 
+    @lazy_property
+    def model_path(self):
+        return self.path + 'models/' + self.model_name + '.h5'
+
+    @lazy_property
+    def preds_path(self):
+        return self.path + 'results/' + self.model_name + '.h5'
+    
+    @lazy_property
+    def log_path(self):
+        return 'logs/' + self.model_name  + '_log.csv'
 
     def dense_layers(self, input_shape=(512, 14, 14), dropout_p=0.5, dense_nodes=512):
         return [

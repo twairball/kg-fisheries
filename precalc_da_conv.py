@@ -33,8 +33,10 @@ class PrecalcDAConvModel(PrecalcConvModel):
 
     def create_da_batches(self, path):
         # image augmentation generator
-        gen_t = image.ImageDataGenerator(rotation_range=45, height_shift_range=0.2, 
-            shear_range=0.3, channel_shift_range=40, width_shift_range=0.3)
+        gen_t = image.ImageDataGenerator(rotation_range=10, width_shift_range=0.05,
+            zoom_range=0.05, channel_shift_range=10, height_shift_range=0.05, 
+            shear_range=0.05, horizontal_flip=True)
+                    
         batch_size = 64
         target_size = (224, 224)
         return gen_t.flow_from_directory(path, 

@@ -34,5 +34,21 @@ def train_dense_nodes():
         m = BaseModel('data/', dense_nodes=dn)
         train_one(m)
 
+def train_ensemble():
+    nb_models = 5 # train 5 ensemble models
+    models = []
+    for run in range(nb_models):
+        m = BaseModel('data/', dense_nodes=512)
+
+        print("====== training model ======")
+        m = BaseModel('data/', dense_nodes=512)
+        m.train(nb_epoch = 20, use_da=True)
+
+        print("====== running test ======")
+        preds, test_batches = m.test(use_da=True)
+        
+        models = models + [m]
+    return models
+    
 if __name__ == "__main__":
-    train_dense_nodes()
+    train_ensemble()

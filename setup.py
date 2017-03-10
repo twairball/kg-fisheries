@@ -53,26 +53,43 @@ def df_draw_random(from_dir, sample_size):
 """
     Validation dataset
 """
-def df_validation(row):
+def df_validation(row, validation_dir='data/valid'):
+    """ validation dataset with same distribution as training """
     # draw random sample for validation data
     validation_size = int(row['count'] * 0.15)
-    validation_dir = 'data/valid/'
     
     df = df_draw_random(row['dir'], validation_size)
     # filename
     filename = df['filepath'].str.extract('(?P<filename>img.*jpg)$')
     df = df.join(filename)
     # destination filepath
-    df['dest_filepath'] = validation_dir + row['classname'] + '/' + filename    
+    df['dest_filepath'] = "%s/%s/%s" % (validation_dir, row['classname'], filename)   
     return df
 
 def move_valid(row):
     df_v = df_validation(row)
     df_v.apply(lambda x: os.rename(x['filepath'], x['dest_filepath']), axis=1)
     
-def make_validation(df):    
+def make_validation():
+    df = df_dataset('data/train')
     df.apply(lambda row: move_valid(row), axis=1)
     
+# make random validation sample
+def df_random_val(trn_dir = 'data/train', val_dir='data/valid', pct=0.1):
+    """ validation data with random distribution """
+    trn = glob(trn_dir + '/*/**')
+    print("training size: %d" % len(trn))
+    sample_size = int(len(trn) * pct)
+
+    val = np.random.permutation(trn)[0:sample_size-1]
+    print ("val size: %d" % len(val))
+    df = pd.DataFrame(val, columns=['filepath'])
+    df['dest_filepath'] = df['filepath'].str.replace(trn_dir, val_dir)
+    return df
+
+def make_rand_validation(trn_dir = 'data/train', val_dir='data/valid'):
+    df = df_random_val(trn_dir, val_dir)
+    df.apply(lambda x: os.rename(x['filepath'], x['dest_filepath']), axis=1)
 
 """
     Sample dataset
@@ -98,18 +115,18 @@ def copy_sample(row, sample_dir, sample_pct):
 def make_sample(df, sample_dir = 'data/sample/train/', sample_pct = 0.3):
     df.apply(lambda row: copy_sample(row, sample_dir, sample_pct), axis=1)
 
+
 if __name__ == "__main__":
     # make validation 
     print("======= data/valid ===========")
-    df = df_dataset('data/train')
-    make_validation(df)
+    make_rand_validation()
 
-    # sample training data
-    print("======= data/sample/train ===========")
-    df = df_dataset('data/train')
-    make_sample(df)
+    # # sample training data
+    # print("======= data/sample/train ===========")
+    # df = df_dataset('data/train')
+    # make_sample(df)
 
-    # sample valid data
-    print("======= data/sample/valid ===========")
-    df_v = df_dataset('data/valid')
-    make_sample(df_v, sample_dir = 'data/sample/valid/', sample_pct = 1.)
+    # # sample valid data
+    # print("======= data/sample/valid ===========")
+    # df_v = df_dataset('data/valid')
+    # make_sample(df_v, sample_dir = 'data/sample/valid/', sample_pct = 1.)

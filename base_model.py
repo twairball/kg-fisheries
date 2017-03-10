@@ -27,7 +27,7 @@ class BaseModel():
     """
         VGG16 base model with fine-tuned dense layers
     """
-    def __init__(self, path, lr=0.0001, dropout_p=0.5, dense_nodes=512):
+    def __init__(self, path, lr=0.0001, dropout_p=0.5, dense_nodes=4096):
         self.path = path
         self.model = self.create_model(lr=lr, dropout_p=dropout_p, dense_nodes=dense_nodes)
         self.model_name = "model_lr%s_p%s_dn%s" % (lr, dropout_p, dense_nodes)
@@ -78,16 +78,28 @@ class BaseModel():
     ##
     ## Batches
     ##
-    def create_train_batches(self):
-        return self.create_batches(self.path + 'train')
+    def create_train_batches(self, use_da=False):
+        return self.create_batches(self.path + 'train', use_da=use_da)
     
     def create_val_batches(self):
+        # validation never uses data-augmentation
         return self.create_batches(self.path + 'valid')
+    
+    def create_gen(self, use_da=False):
+        if use_da:
+            gen = image.ImageDataGenerator(rotation_range=10, width_shift_range=0.05,
+                zoom_range=0.05, channel_shift_range=10, height_shift_range=0.05, 
+                shear_range=0.05, horizontal_flip=True)
+        else:
+            gen = image.ImageDataGenerator()
+        return gen 
 
-    def create_batches(self, path, shuffle=True):
+    def create_batches(self, path, shuffle=True, use_da=False):
         batch_size = 64
         target_size = (224, 224)
-        return image.ImageDataGenerator().flow_from_directory(path, 
+        gen = self.create_gen(use_da)
+
+        return gen.flow_from_directory(path, 
             target_size = target_size,
             batch_size = batch_size,
             class_mode = 'categorical',
@@ -97,9 +109,9 @@ class BaseModel():
     ##
     ## Training
     ##
-    def train(self, nb_epoch = 15):
+    def train(self, nb_epoch = 15, use_da=False):
         batch_size = 32
-        train_batches = self.create_train_batches()
+        train_batches = self.create_train_batches(use_da=use_da)
         val_batches = self.create_val_batches()
 
         # csv logger
@@ -124,11 +136,11 @@ class BaseModel():
     ##
     ## Test
     ##
-    def create_test_batches(self):
-        return self.create_batches(self.path + 'test', shuffle=False)
+    def create_test_batches(self, use_da=False):
+        return self.create_batches(self.path + 'test', shuffle=False, use_da=use_da)
 
-    def test(self):
-        test_batches = self.create_test_batches()
+    def test(self, use_da=False):
+        test_batches = self.create_test_batches(use_da=use_da)
         preds = self.model.predict_generator(test_batches, test_batches.nb_sample)
 
         print("(test) saving predictions to file....")
@@ -138,17 +150,11 @@ class BaseModel():
         save_array(self.preds_path, preds)
         return (preds, test_batches)
 
-def train_only():
-    print("====== training model ======")
-    m = BaseModel('data/')
-    m.train()
-
-    print("====== running test ======")
-    preds, test_batches = m.test()
-
-    print("======= making submission ========")
-    submits_path = 'submits/base_model_subm.gz'
-    submit(preds, test_batches, submits_path)
 
 if __name__ == "__main__":
-    train_only()
+    print("====== training model ======")
+    m = BaseModel('data/')
+    m.train(nb_epoch = 20, use_da=True)
+
+    print("====== running test ======")
+    preds, test_batches = m.test(use_da=True)

@@ -174,6 +174,9 @@ class BaseModel():
 
         save_array(self.preds_path, preds)
         return (preds, test_batches)
+    
+    def test_on_batch(self, test_batches):
+        return self.model.predict_generator(test_batches, test_batches.nb_sample)
 
 
 if __name__ == "__main__":

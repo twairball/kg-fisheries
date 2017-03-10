@@ -62,7 +62,50 @@ def run_submit(m):
     print("======= pushing to kaggle ========")
     push_to_kaggle(submit_path)
 
+
+def train_ensemble():
+    nb_models = 5 # train 5 ensemble models
+    models = []
+    nb_test_samples = 1000
+    nb_classes = 8
+    preds = np.zeros((nb_test_samples, nb_classes))
+
+    for run in range(nb_models):
+        print("====== Ensemble model: %d ======" % run)
+        m = ResnetModel('data/')
+        model_prefix = "da_r%d_" % run 
+        m.model_name = model_prefix + m.model_name
+
+        print("====== training model ======")
+        m.train(nb_epoch = 20, use_da=True)
+
+        print("====== running test ======")
+        _preds, _test_batches = m.test(use_da=True)
+
+        # append predictions
+        preds = preds + _preds
+
+        # append model 
+        models = models + [m]
+    
+    # average
+    preds /= nb_models
+    save_array('data/results/ens_resnet_ep20_da_preds.h5', preds)
+
+    return preds, models
+    
 if __name__ == "__main__":
-    m = train_model()
-    run_test(m)
-    run_submit(m)
+    preds, models = train_ensemble()
+
+    del models 
+
+    # get test batch from any model 
+    test_batches = ResnetModel('data/').create_test_batches()    
+
+    print("======= making submission ========")
+    submits_path = 'submits/ens_resnet_ep20_da_subm.gz'
+    submit(preds, test_batches, submits_path)
+
+    print("======= pushing to kaggle ========")
+    push_to_kaggle(submits_path)
+    

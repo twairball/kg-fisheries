@@ -49,7 +49,6 @@ def train_ensemble():
         m.model_name = model_prefix + m.model_name
 
         print("====== training model ======")
-        m = BaseModel('data/', dense_nodes=512)
         m.train(nb_epoch = 20, use_da=True)
 
         print("====== running test ======")

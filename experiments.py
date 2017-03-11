@@ -38,9 +38,7 @@ def train_dense_nodes():
 def train_ensemble():
     nb_models = 5 # train 5 ensemble models
     models = []
-    nb_test_samples = 1000
-    nb_classes = 8
-    preds = np.zeros((nb_test_samples, nb_classes))
+    model_paths = []
 
     for run in range(nb_models):
         print("====== Ensemble model: %d ======" % run)
@@ -51,26 +49,38 @@ def train_ensemble():
         print("====== training model ======")
         m.train(nb_epoch = 20, use_da=True)
 
-        print("====== running test ======")
-        _preds, _test_batches = m.test(use_da=True)
-
-        # append predictions
-        preds = preds + _preds
-
         # append model 
         models = models + [m]
-    
-    # average
-    preds /= nb_models
-    save_array('data/results/ensemble_dn512_ep20_da_preds.h5', preds)
+        model_paths = model_paths + [m.model_path]
 
-    return preds, models
-    
-if __name__ == "__main__":
-    preds, models = train_ensemble()
+    return models, model_paths
 
-    del models 
+def test_ensemble(models):
+    nb_test_samples = 1000
+    nb_classes = 8
+    nb_augmentations = 5
+    preds = np.zeros((nb_test_samples, nb_classes))
 
+    for test_run in range(nb_augmentations):
+        # make test batch randomly with data aug
+        test_batches = models[0].create_test_batches(use_da=True)
+        preds_aug = np.zeros((nb_test_samples, nb_classes))
+
+        for ind, m in models: 
+            print("====== running test model: %d ======" % ind)
+            _preds = m.test_on_batch(test_batches)
+            preds_aug = preds_aug + _preds
+        
+        preds_aug /= len(models) 
+        preds = preds + preds_aug
+        
+
+    preds /= nb_augmentations
+    save_array('data/results/ensemble_dn512_ep20_da_test_preds.h5', preds)
+    return preds 
+
+
+def submit_ensemble(preds):
     # get test batch from any model 
     test_batches = BaseModel('data/').create_test_batches()    
 
@@ -80,4 +90,15 @@ if __name__ == "__main__":
 
     print("======= pushing to kaggle ========")
     push_to_kaggle(submits_path)
+
+if __name__ == "__main__":
+    models, model_paths = train_ensemble()
+
+    for mp in model_paths:
+        print("model path: %s" % mp)
+    
+    preds = test_ensemble(models)
+
+    submit_ensemble(preds)
+
     

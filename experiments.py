@@ -42,7 +42,7 @@ def train_ensemble():
 
     for run in range(nb_models):
         print("====== Ensemble model: %d ======" % run)
-        m = BaseModel('data/', dense_nodes=512)
+        m = BaseModel('data/', dense_nodes=4096)
         model_prefix = "da_r%d_" % run 
         m.model_name = model_prefix + m.model_name
 
@@ -63,6 +63,7 @@ def test_ensemble(models):
 
     for test_run in range(nb_augmentations):
         # make test batch randomly with data aug
+        print("====== data-aug test batch: %d ======" % test_run)
         test_batches = models[0].create_test_batches(use_da=True)
         preds_aug = np.zeros((nb_test_samples, nb_classes))
 
@@ -85,7 +86,7 @@ def submit_ensemble(preds):
     test_batches = BaseModel('data/').create_test_batches()    
 
     print("======= making submission ========")
-    submits_path = 'submits/ens_dn512_ep20_da_subm.gz'
+    submits_path = 'submits/ens_dn4096_ep20_da_subm.gz'
     submit(preds, test_batches, submits_path)
 
     print("======= pushing to kaggle ========")
@@ -96,9 +97,10 @@ def load_models():
     nb_models = 5
     for run in range(nb_models):
         print("====== Loading ensemble model: %d ======" % run)
-        m = BaseModel('data/', dense_nodes=512)
+        m = BaseModel('data/', dense_nodes=4096)
         model_prefix = "da_r%d_" % run 
         m.model_name = model_prefix + m.model_name
+        print("model path: %s" % m.model_path)
         m.load_model()
 
         models = models + [m]

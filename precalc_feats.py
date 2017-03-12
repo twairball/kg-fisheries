@@ -38,11 +38,8 @@ def create_gen(use_da=False):
         gen = image.ImageDataGenerator()
     return gen 
 
-def create_batches(path, shuffle=True, use_da=False):
-    batch_size = 64
-    target_size = (224, 224)
+def create_batches(path, shuffle=True, use_da=False, target_size=(224, 224), batch_size=64):
     gen = create_gen(use_da)
-
     return gen.flow_from_directory(path, 
         target_size = target_size,
         batch_size = batch_size,
@@ -70,70 +67,3 @@ class PrecalcFeats():
     def calc_feats_on_batch(self, batches):
         return self.model.predict_generator(batches, batches.nb_sample)
 
-## main scripts
-def calc_train_da_feats():
-    nb_augm = 5
-    print("===== (TRAIN) Precalc data-augmented conv features =====")
-
-    pcf = PrecalcFeats()
-    for aug in range(nb_augm):
-        print("===== data-aug: %d =====" % aug)
-        batches = create_batches('data/train/', shuffle=True, use_da=True)
-        print("    (precalc) calculating features...")
-        feats = pcf.calc_feats_on_batch(batches)
-        labels = to_categorical(batches.classes)
-
-        # save
-        labels_file = "data/results/da%d_conv_labels.h5" % aug
-        feats_file = "data/results/da%d_conv_feats.h5" % aug
-        save_array(labels_file, labels)
-        save_array(feats_file, feats)
-        print("    (precalc) feats: %s" % (feats.shape,))
-        print("    (precalc) saved feats to: %s" % feats_file)
-        print("    (precalc) saved labels to: %s" % labels_file)
-
-def calc_val_feats():
-    print("===== (VALID) Precalc validation conv features =====")
-    pcf = PrecalcFeats()
-    batches = create_batches('data/valid/', shuffle=True, use_da=False)
-    print("    (precalc) calculating features...")
-    feats = pcf.calc_feats_on_batch(batches)
-    labels = to_categorical(batches.classes)
-
-    # save
-    labels_file = "data/results/conv_val_labels.h5" 
-    feats_file = "data/results/conv_val_feats.h5"
-    save_array(labels_file, labels)
-    save_array(feats_file, feats)
-    print("    (precalc) feats: %s" % (feats.shape,))
-    print("    (precalc) saved feats to: %s" % feats_file)
-    print("    (precalc) saved labels to: %s" % labels_file)
-
-
-def calc_test_da_feats():
-    nb_augm = 5
-    print("===== (TEST) Precalc data-augmented conv features =====")
-
-    pcf = PrecalcFeats()
-    for aug in range(nb_augm):
-        print("===== data-aug: %d =====" % aug)
-        batches = create_batches('data/test/', shuffle=True, use_da=True)
-        print("    (precalc) calculating features...")
-        feats = pcf.calc_feats_on_batch(batches)
-        labels = to_categorical(batches.classes)
-
-        # save
-        labels_file = "data/results/da%d_conv_test_labels.h5" % aug
-        feats_file = "data/results/da%d_conv_test_feats.h5" % aug
-        save_array(labels_file, labels)
-        save_array(feats_file, feats)
-        print("    (precalc) feats: %s" % (feats.shape,))
-        print("    (precalc) saved feats to: %s" % feats_file)
-        print("    (precalc) saved labels to: %s" % labels_file)
-
-
-if __name__ == "__main__":
-    calc_train_da_feats()
-    calc_val_feats()
-    calc_test_da_feats()
-    

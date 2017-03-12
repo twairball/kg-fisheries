@@ -108,8 +108,8 @@ def load_models():
     return models
 
 if __name__ == "__main__":
-    # models, model_paths = train_ensemble()
-    models = load_models()
+    models, model_paths = train_ensemble()
+    # models = load_models()
     preds = test_ensemble(models)
     submit_ensemble(preds)
 

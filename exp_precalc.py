@@ -82,7 +82,7 @@ def train_ensemble():
         labels_file = "data/results/da%d_conv_labels.h5" % aug
         feats_file = "data/results/da%d_conv_feats.h5" % aug
 
-        trn_labels = load_array(labels)
+        trn_labels = load_array(labels_file)
         conv_feat = load_array(feats_file)
 
         print("====== Ensemble model: %d ======" % aug)

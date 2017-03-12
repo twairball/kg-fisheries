@@ -95,7 +95,7 @@ def calc_train_da_feats():
 def calc_val_feats():
     print("===== (VALID) Precalc validation conv features =====")
     pcf = PrecalcFeats()
-    val_batches = create_batches('data/valid/', shuffle=True, use_da=False)
+    batches = create_batches('data/valid/', shuffle=True, use_da=False)
     print("    (precalc) calculating features...")
     feats = pcf.calc_feats_on_batch(batches)
     labels = to_categorical(batches.classes)

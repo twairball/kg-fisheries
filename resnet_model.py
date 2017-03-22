@@ -52,9 +52,9 @@ class ResnetModel(BaseModel):
         self.model_name = "resnet50_lr%s" % lr
         self.model = self.create_model(lr=lr)
 
-    def create_model(self, lr, momentum, decay):
+    def create_model(self, lr, input_shape=(3, 224, 244)):
         # pretrained ResNet50
-        resnet_model = ResNet50(include_top=False)
+        resnet_model = ResNet50(include_top=False, input_shape=input_shape)
         for layer in resnet_model.layers: layer.trainable=False
 
         # fully connected layers
@@ -63,7 +63,13 @@ class ResnetModel(BaseModel):
         x = Dense(8, activation='softmax', name='fc8')(x)
 
         model = Model(resnet_model.input, x)
-        optimizer = SGD(lr=lr, momentum = momentum, decay = decay, nesterov = True)
+        optimizer = RMSprop(lr=lr)
         model.compile(loss='categorical_crossentropy', optimizer = optimizer, metrics = ['accuracy'])
         return model 
 
+    def fine_tune(self):
+        for layer in self.model.layers: layer.trainable=False
+        # find index to last activation
+        idx = self.model.get_layer(name='activation_40')
+        for layer in self.model.layers[idx+1:]: layer.trainable=True
+    

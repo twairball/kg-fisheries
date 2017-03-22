@@ -1,4 +1,3 @@
-from dense_model import DenseModel
 from precalc_feats import *
 from resnet_model import *
 
@@ -87,7 +86,7 @@ def train_ensemble():
         conv_feat = load_array(feats_file)
 
         print("====== Ensemble model: %d ======" % aug)
-        m = DenseModel('data/', dense_nodes=4096)
+        m = ResnetDenseModel('data/')
         model_prefix = "resnet_da_dense_r%d_" % aug 
         m.model_name = model_prefix + m.model_name
 

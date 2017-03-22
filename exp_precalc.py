@@ -152,9 +152,9 @@ def submit_ensemble(preds):
 #     return models
 
 if __name__ == "__main__":
-    # calc_train_da_feats()
-    # calc_val_feats()
-    # calc_test_da_feats()
+    calc_train_da_feats()
+    calc_val_feats()
+    calc_test_da_feats()
 
     models, model_paths = train_ensemble()
     preds = test_ensemble(models)

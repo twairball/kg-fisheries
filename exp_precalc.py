@@ -13,7 +13,7 @@ def calc_train_da_feats():
     pcf = PrecalcFeats()
     for aug in range(nb_augm):
         print("===== data-aug: %d =====" % aug)
-        batches = create_batches('data/train/', shuffle=True, use_da=True)
+        batches = create_batches('data/train/', shuffle=False, use_da=True)
         print("    (precalc) calculating features...")
         feats = pcf.calc_feats_on_batch(batches)
         labels = to_categorical(batches.classes)
@@ -30,7 +30,7 @@ def calc_train_da_feats():
 def calc_val_feats():
     print("===== (VALID) Precalc validation conv features =====")
     pcf = PrecalcFeats()
-    batches = create_batches('data/valid/', shuffle=True, use_da=False)
+    batches = create_batches('data/valid/', shuffle=False, use_da=False)
     print("    (precalc) calculating features...")
     feats = pcf.calc_feats_on_batch(batches)
     labels = to_categorical(batches.classes)
@@ -78,7 +78,7 @@ def train_ensemble():
     for aug in range(nb_models):
         print("===== data-aug: %d =====" % aug)
 
-        # save
+        # load
         labels_file = "data/results/da%d_conv_labels.h5" % aug
         feats_file = "data/results/da%d_conv_feats.h5" % aug
 
@@ -127,7 +127,7 @@ def test_ensemble(models):
 
 def submit_ensemble(preds):
     # get test batch from any model 
-    test_batches = BaseModel('data/').create_test_batches()    
+    test_batches = create_batches('data/test/', shuffle=False, use_da=False)
 
     print("======= making submission ========")
     submits_path = 'submits/ens_dense_preds.gz'

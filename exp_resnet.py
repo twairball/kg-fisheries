@@ -109,8 +109,8 @@ def test_ensemble(models):
         # make test batch randomly with data aug
         print("====== data-aug test batch: %d ======" % test_run)
         preds_aug = np.zeros((nb_test_samples, nb_classes))
-        conv_test_feat = load_array("data/results/resnet_da%d_conv_test_labels.h5" % test_run)
-        
+        conv_test_feat = load_array("data/results/resnet_da%d_conv_test_feats.h5" % test_run)
+
         for ind, m in enumerate(models): 
             print("====== running test model: %d ======" % ind)
             _preds = m.test(conv_test_feat)

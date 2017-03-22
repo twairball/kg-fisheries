@@ -53,7 +53,7 @@ def calc_test_da_feats():
     pcf = PrecalcResnet()
     for aug in range(nb_augm):
         print("===== data-aug: %d =====" % aug)
-        batches = create_batches('data/test/', shuffle=True, use_da=True)
+        batches = create_batches('data/test/', shuffle=False, use_da=True)
         print("    (precalc) calculating features...")
         feats = pcf.calc_feats_on_batch(batches)
         labels = to_categorical(batches.classes)

@@ -49,6 +49,7 @@ class ResnetModel(BaseModel):
     ResNet50 with fine-tuned dense layers
     """
     def __init__(self, path, lr=0.001):
+        self.path = path
         self.model_name = "resnet50_lr%s" % lr
         self.model = self.create_model(lr=lr)
 

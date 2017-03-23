@@ -69,7 +69,8 @@ class ResnetModel(BaseModel):
 
     def fine_tune(self):
         for layer in self.model.layers: layer.trainable=False
-        # find index to last activation
-        idx = self.model.get_layer(name='activation_40')
-        for layer in self.model.layers[idx+1:]: layer.trainable=True
+        # find index to last indentity block
+        l = self.model.get_layer(name='res5a_branch2a')
+        idx = self.model.layers.index(l)
+        for layer in self.model.layers[idx:]: layer.trainable=True
     

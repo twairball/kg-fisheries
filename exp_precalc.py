@@ -136,26 +136,27 @@ def submit_ensemble(preds):
     print("======= pushing to kaggle ========")
     push_to_kaggle(submits_path)
 
-# def load_models():
-#     models = []
-#     nb_models = 5
-#     for run in range(nb_models):
-#         print("====== Loading ensemble model: %d ======" % run)
-#         m = BaseModel('data/', dense_nodes=4096)
-#         model_prefix = "da_r%d_" % run 
-#         m.model_name = model_prefix + m.model_name
-#         print("model path: %s" % m.model_path)
-#         m.load_model()
+def load_models():
+    models = []
+    nb_models = 5
+    for run in range(nb_models):
+        print("====== Loading ensemble model: %d ======" % run)
+        m = DenseModel('data/', dense_nodes=4096)
+        model_prefix = "da_dense_r%d_" % aug 
+        m.model_name = model_prefix + m.model_name
+        print("model path: %s" % m.model_path)
+        m.load_model()
 
-#         models = models + [m]
-
-#     return models
+        models = models + [m]
+    return models
 
 if __name__ == "__main__":
-    calc_train_da_feats()
-    calc_val_feats()
-    calc_test_da_feats()
+    # calc_train_da_feats()
+    # calc_val_feats()
+    # calc_test_da_feats()
 
-    models, model_paths = train_ensemble()
+    # models, model_paths = train_ensemble()
+
+    models = load_models()
     preds = test_ensemble(models)
     submit_ensemble(preds)

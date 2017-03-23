@@ -18,8 +18,8 @@ class PrecalcResnet(PrecalcFeats):
     """
     Precalculate conv features using Resnet50
     """
-    def conv_model(self):
-        return ResNet50(include_top=False)
+    def create_model(self, input_shape=(3,224,224)):
+        return ResNet50(include_top=False, input_shape=input_shape)
 
 class ResnetDenseModel(DenseModel):
     """

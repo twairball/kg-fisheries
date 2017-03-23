@@ -137,6 +137,20 @@ def submit_ensemble(preds):
     push_to_kaggle(submits_path)
 
 
+def load_models():
+    models = []
+    nb_models = 5
+    for run in range(nb_models):
+        print("====== Loading ensemble model: %d ======" % run)
+        m = DenseModel('data/', dense_nodes=4096)
+        model_prefix = "resnet_da_dense_r%d_" % run 
+        m.model_name = model_prefix + m.model_name
+        print("model path: %s" % m.model_path)
+        m.load_model()
+
+        models = models + [m]
+    return models
+
 if __name__ == "__main__":
     calc_train_da_feats()
     calc_val_feats()

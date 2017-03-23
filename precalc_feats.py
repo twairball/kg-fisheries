@@ -51,11 +51,11 @@ class PrecalcFeats():
     """
     precalc VGG conv features
     """
-    def __init__(self):
-        self.model = self.create_model()
+    def __init__(self, input_shape=(3,224,224)):
+        self.model = self.create_model(input_shape=input_shape)
     
-    def create_model(self):
-        vgg = Vgg16()
+    def create_model(self, input_shape=(3,224,224)):
+        vgg = Vgg16() # TODO: pass input_shape
         model=vgg.model
         last_conv_idx = [i for i,l in enumerate(model.layers) if type(l) is Convolution2D][-1]
         conv_layers = model.layers[:last_conv_idx+1]

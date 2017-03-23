@@ -142,7 +142,7 @@ def load_models():
     for run in range(nb_models):
         print("====== Loading ensemble model: %d ======" % run)
         m = DenseModel('data/', dense_nodes=4096)
-        model_prefix = "da_dense_r%d_" % aug 
+        model_prefix = "da_dense_r%d_" % run 
         m.model_name = model_prefix + m.model_name
         print("model path: %s" % m.model_path)
         m.load_model()

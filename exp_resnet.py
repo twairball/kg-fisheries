@@ -20,7 +20,7 @@ def train_ensemble():
         m.fine_tune()
 
         print("====== training model ======")
-        m.train(nb_epoch = 15, use_da=True)
+        m.train(nb_epoch=20, use_da=True)
 
         # append model 
         models = models + [m]

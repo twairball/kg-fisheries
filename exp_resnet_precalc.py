@@ -91,7 +91,7 @@ def train_ensemble():
         m.model_name = model_prefix + m.model_name
 
         print("====== training model ======")
-        m.train(conv_feat, trn_labels, conv_val_feat, val_labels, nb_epoch=15)
+        m.train(conv_feat, trn_labels, conv_val_feat, val_labels, nb_epoch=20)
 
         # append model 
         models = models + [m]

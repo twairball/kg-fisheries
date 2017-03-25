@@ -34,9 +34,10 @@ class ResnetDenseModel(DenseModel):
         self.preds_path = path + 'results/' + self.model_name + '.h5'
         self.log_path = 'logs/' + self.model_name  + '_log.csv'
     
-    def dense_model(self, lr=0.001, input_shape=(2048,1,1)):
+    def dense_model(self, lr=0.001, input_shape=(2048,1,1), dropout_p=0.5):
         input = Input(shape=input_shape)
         x = Flatten()(input)
+        x = Dropout(dropout_p)(x)
         x = Dense(8, activation='softmax', name='fc')(x)
 
         model = Model(input, x)
@@ -48,7 +49,7 @@ class ResnetModel(BaseModel):
     """
     ResNet50 with fine-tuned dense layers
     """
-    def __init__(self, path, lr=0.001):
+    def __init__(self, path, lr=0.001, dropout_p=0.5):
         self.path = path
         self.model_name = "resnet50_lr%s" % lr
         self.model = self.create_model(lr=lr)
@@ -61,6 +62,7 @@ class ResnetModel(BaseModel):
         # fully connected layers
         x = resnet_model.get_layer(index=-1).output
         x = Flatten()(x)
+        x = Dropout(dropout_p)(x)
         x = Dense(8, activation='softmax', name='fc8')(x)
 
         model = Model(resnet_model.input, x)

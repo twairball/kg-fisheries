@@ -54,7 +54,7 @@ class ResnetModel(BaseModel):
         self.model_name = "resnet50_lr%s" % lr
         self.model = self.create_model(lr=lr)
 
-    def create_model(self, lr, input_shape=(3, 224, 244)):
+    def create_model(self, lr, input_shape=(3, 224, 244), dropout_p=0.5):
         # pretrained ResNet50
         resnet_model = ResNet50(include_top=False, input_shape=input_shape)
         for layer in resnet_model.layers: layer.trainable=False

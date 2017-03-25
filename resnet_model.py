@@ -60,8 +60,8 @@ class ResnetModel(BaseModel):
         for layer in resnet_model.layers: layer.trainable=False
 
         # fully connected layers
-        x = resnet_model.get_layer(index=-2).output # output before average pooling
-        x = AveragePooling2D((7, 7), name='avg_pool')(x)
+        output = resnet_model.get_layer(index=-2).output # output before average pooling
+        x = AveragePooling2D((7, 7), name='avg_pool')(output)
         x = Flatten()(x)
         x = Dropout(dropout_p)(x)
         x = Dense(8, activation='softmax', name='fc8')(x)

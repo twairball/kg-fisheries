@@ -155,6 +155,22 @@ class BaseModel():
 
         return self.model
     
+    def train_on_batches(self, train_batches, val_batches, nb_epoch=15):
+        # csv logger
+        csv_logger = CSVLogger(self.log_path, separator=',', append=False)
+        # save model 
+        checkpointer = ModelCheckpoint(filepath=self.model_path, 
+            verbose=1, save_best_only=True)
+
+        self.model.fit_generator(train_batches, 
+            samples_per_epoch = train_batches.nb_sample, 
+            nb_epoch = nb_epoch, 
+            validation_data = val_batches, 
+            nb_val_samples = val_batches.nb_sample) 
+            # callbacks=[checkpointer, csv_logger])
+        return self.model
+
+
     def load_model(self):
         self.model.load_weights(self.model_path)
     

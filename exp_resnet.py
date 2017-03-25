@@ -20,7 +20,10 @@ def train_ensemble():
         m.fine_tune()
 
         print("====== training model ======")
-        m.train(nb_epoch=20, use_da=True)
+        train_batches = create_batches('data/train/', shuffle=True, use_da=True)
+        val_batches = create_batches('data/valid/', shuffle=True, use_da=True)
+        # m.train(nb_epoch=20, use_da=True)
+        m.train_on_batches(train_batches, val_batches, nb_epoch=20)
 
         # append model 
         models = models + [m]
